@@ -39,15 +39,15 @@ if !exists("g:easytree_highlight_cursor_line")
 endif
 
 if !exists("g:easytree_ignore_dirs")
-    let g:easytree_ignore_dirs = "['*.AppleDouble*','*.DS_Store*']"
+    let g:easytree_ignore_dirs = ['*.AppleDouble*','*.DS_Store*']
 endif
 
 if !exists("g:easytree_ignore_files")
-    let g:easytree_ignore_files = "['*.swp']"
+    let g:easytree_ignore_files = ['*.swp']
 endif
 
 if !exists("g:easytree_ignore_find_result")
-    let g:easytree_ignore_find_result = "[]"
+    let g:easytree_ignore_find_result = []
 endif
 
 if !exists("g:easytree_hijack_netrw")
@@ -67,15 +67,15 @@ def EasyTreeFnmatchList(f,patterns):
 def EasyTreeFind(pattern,dir,showhidden):
     if not ('*' in pattern or '?' in pattern or '[' in pattern):
         pattern = '*'+pattern+'*'
-    ignore_find_result = eval(vim.eval('g:easytree_ignore_find_result'))
+    ignore_find_result = vim.eval('g:easytree_ignore_find_result')
     filelist = EasyTreeList(dir,showhidden, lambda f: fnmatch.fnmatch(f,pattern))
     filelist = filter(lambda f: not EasyTreeFnmatchList(f,ignore_find_result), filelist)
     return filelist
 
 def EasyTreeList(dir,showhidden,findfilter):
     dir = os.path.expanduser(dir)
-    ignore_dirs = eval(vim.eval('g:easytree_ignore_dirs'))
-    ignore_files = eval(vim.eval('g:easytree_ignore_files'))
+    ignore_dirs = vim.eval('g:easytree_ignore_dirs')
+    ignore_files = vim.eval('g:easytree_ignore_files')
     filelist = []
     showhidden = int(showhidden) == 1
     for root, dirs, files in os.walk(dir):
@@ -104,8 +104,8 @@ def EasyTreeList(dir,showhidden,findfilter):
 
 def EasyTreeListDir(dir,showhidden):
     dir = os.path.expanduser(dir)
-    ignore_dirs = eval(vim.eval('g:easytree_ignore_dirs'))
-    ignore_files = eval(vim.eval('g:easytree_ignore_files'))
+    ignore_dirs = vim.eval('g:easytree_ignore_dirs')
+    ignore_files = vim.eval('g:easytree_ignore_files')
     for root, dirs, files in os.walk(dir):
         if int(showhidden) == 0:
             dirs = filter(lambda d: not d.startswith("."),dirs)
