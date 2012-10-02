@@ -1,0 +1,148 @@
+easytree.vim for Vim version 7.0+   Last change: 1 October, 2012
+
+Maintainer: Dmitry "troydm" Geurkov <d.geurkov@gmail.com>
+Version: 0.1
+Description: easytree.vim is a simple tree file manager
+Last Change: 1 October, 2012
+License: Vim License (see :help license)
+Website: https://github.com/troydm/easytree.vim
+
+Help on using easytree.vim                                     *easytree.vim*
+
+1. Introduction                    |easytree.vim-intro|
+2. Configuration                   |easytree.vim-configuration|
+2. Usage                           |easytree.vim-usage|
+
+============================================================================================
+ 1. INTRODUCTION                                                  *easytree.vim-intro*
+
+easybuffer.vim - is a simple tree file manager for vim.
+While being highly inspired by NERDTree it differs from it in it's approach to a file 
+management and takes a more traditional vim yank/paste file copy/paste/delete approach
+It's also more simpler in it's functionality and has much less features compared to other
+file managers. It's goal is to be as fast and as minimalistic as possible.
+Just the right tool for just the right task
+
+Platform: 
+    only unix based operating systems are supported
+
+Requirements: 
+    vim compiled with python support
+
+============================================================================================
+ 2. CONFIGURATION                                        *easytree.vim-configuration*
+
+                                                         *g:easytree_cascade_open_single_dir*
+g:easytree_cascade_open_single_dir     (Default: 1)
+    Cascade expands all subsequent single directories when expanding directory
+
+                                                         *g:easytree_show_line_numbers*
+g:easytree_show_line_numbers     (Default: 0)
+    Show line numbers in easytree buffer
+                                                         *g:easytree_show_hidden_files*
+g:easytree_show_hidden_files     (Default: 0)
+    Show hidden files when opening new easytree buffer
+    You can toggle this in easytree buffer using I key
+
+                                                         *g:easytree_highlight_cursor_line*
+g:easytree_highlight_cursor_line     (Default: 1)
+    Highlight current line in easytree buffer
+
+                                                         *g:easytree_ignore_dirs*
+g:easytree_ignore_dirs     (Default: "['*.AppleDouble*','*.DS_Store*']")
+    directory patterns present in the following list won't show up in easytree buffer
+    this list is a standart python complaint list of str objects
+
+                                                         *g:easytree_ignore_files*
+g:easytree_ignore_files     (Default: "['*.swp']")
+    file patterns present in the following list won't show up in easytree buffer
+    this list is a standart python complaint list of str objects
+
+                                                         *g:easytree_ignore_find_result*
+g:easytree_ignore_files     (Default: "[]")
+    file patterns present in the following list won't show up as find results
+    this list is a standart python complaint list of str objects
+
+                                                         *g:easytree_hijack_netrw*
+g:easytree_hijack_netrw     (Default: 1)
+    if this option is enabled directories will be opened using easytree instead of |netrw|
+
+============================================================================================
+ 2. USAGE                                                         *easytree.vim-usage*
+
+                                                                  *EasyTree*
+:EasyTree [directory path]
+    Opens a new window on the left side with specified directory in easytree buffer
+    If directory is not specified uses the current working directory as root
+    The first line of buffer contains a full path of an opened directory
+    Second line contains .. symbol that is used to go up in filesystem hierarchy
+    Directories are usually prepended with ▸ or ▾ meaning they are expanded or closed
+    Other files are just shown as they are named
+    File open/edit:
+        To edit a file move your cursor over the line were the file is and press |e| or |<Enter>|
+        To edit file in new vertical split window press |vs| instead
+        To edit file in new horizontal split window press |sp| instead
+        If you press |e|, |vs| or |sp| over a directory this directory will be edited instead
+    Directory open/close:
+        To expand a directory move your cursor over the line with a specified directory
+        and press |<Enter>| or |o|. Pressing |O| will expand all sub directories too
+        To close a directory move your cursor over expanded directory and press |<Enter>| or |x|
+        To close all sub directories press |X| instead
+    Root tree navigation:
+        To go up in filesystem hierarchy move your cursor over the second line and press |<Enter>| or
+        just press |u| without changing position of your cursor
+        To use specified directory as a root for an easytree buffer move your cursor over the directory
+        line and press |C| to use it as root for easytree. 
+        Pressing |cd| will make that directory current working directory but won't change the root of easytree
+        To jump to another directory press |J| and specify a full path to the directory you want to jump to
+        To refresh current expanded directory listing press |r| while having your line over that directory
+        Pressing |R| will refresh whole easytree buffer
+    File search:
+        Press |f| to search for a file/directory and specify a pattern filename pattern you want to search for
+        Press |n| and |N| to move your cursor over search results
+        Pressing |F| instead of |f| will have repeat last search
+    File management:
+        To create a new file/directory press |m| while having your cursor over/in directory were you want to 
+        create a new file/directory. If name specified will have / as it's suffix, a directory will be created,
+        otherwise it'll create a file. All specified parent directories will be automaticly created as needed
+        To rename a file/directory move your cursor over the file/dir you want to rename and press |c|
+        To copy the current file into the buffer, just move your cursor over the file/dir line and press |yy|
+        or select that files/dirs in visual mode and press |y|. This will copy their filenames to yank register
+        Now to see the yank register just press |P|. To paste files/dirs in yank register into a new location
+        just move your cursor over the directory you want to paste your files/dirs into and press |p|  
+        Same way to delete file/dir just move your cursor over that file/dir press |dd|
+        To delete multiple files/dirs just select them in visual mode and press |d|
+    Other actions:
+        To toggle visibility of hidden files just press |I|
+        To quickly access help just press |?|
+        To close easytree window just press |q|
+
+                                                                  *EasyTreeHere*
+:EasyTreeHere [directory path]
+    Same as |EasyTree| only opens easy tree buffer in current window
+
+                                                                  *EasyTreeLeft*
+:EasyTreeLeft [directory path]
+    Same as |EasyTree|
+
+                                                                  *EasyTreeRight*
+:EasyTreeRight [directory path]
+    Same as |EasyTree| only opens easy tree window on right side
+
+                                                                  *EasyTreeTop*
+:EasyTreeTop [directory path]
+    Same as |EasyTree| only opens easy tree window at the top
+
+                                                                  *EasyTreeBottom*
+:EasyTreeBottom [directory path]
+    Same as |EasyTree| only opens easy tree window at the bottom
+
+                                                                  *EasyTreeTopDouble*
+:EasyTreeTopDouble [directory path]
+    Opens two easy tree windows side by side at the top
+
+                                                                  *EasyTreeBottomDouble*
+:EasyTreeBottomDouble [directory path]
+    Opens two easy tree windows side by side at the bottom
+
+ vim:tw=78:ts=8:ft=help:norl:
