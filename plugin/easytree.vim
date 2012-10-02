@@ -17,6 +17,11 @@ if !has("python")
     finish
 endif
 
+if !exists('*pyeval')
+    echo "easytree needs vim 7.3 with atleast 569 patchset included"
+    finish
+endif
+
 if !exists("g:easytree_cascade_open_single_dir")
     let g:easytree_cascade_open_single_dir = 1
 endif
