@@ -51,17 +51,17 @@ g:easytree_highlight_cursor_line     (Default: 1)
                                                          *g:easytree_ignore_dirs*
 g:easytree_ignore_dirs     (Default: "['*.AppleDouble*','*.DS_Store*']")
     directory patterns present in the following list won't show up in easytree buffer
-    this list is a standart python complaint list of str objects
+    this list is a standard Python complaint list of str objects
 
                                                          *g:easytree_ignore_files*
 g:easytree_ignore_files     (Default: "['*.swp']")
     file patterns present in the following list won't show up in easytree buffer
-    this list is a standart python complaint list of str objects
+    this list is a standard Python complaint list of str objects
 
                                                          *g:easytree_ignore_find_result*
-g:easytree_ignore_files     (Default: "[]")
+g:easytree_ignore_find_result     (Default: "[]")
     file patterns present in the following list won't show up as find results
-    this list is a standart python complaint list of str objects
+    this list is a standard Python complaint list of str objects
 
                                                          *g:easytree_hijack_netrw*
 g:easytree_hijack_netrw     (Default: 1)
