@@ -45,15 +45,15 @@ g:easytree_show_hidden_files     (Default: 0)
     You can toggle this in easytree buffer using I key
 
                                                          *g:easytree_highlight_cursor_line*
-g:easytree_highlight_cursor_line     (Default: 1)
+g:easytree_highlight_cursor_line (Default: 1)
     Highlight current line in easytree buffer
 
                                                          *g:easytree_ignore_dirs*
-g:easytree_ignore_dirs     (Default: ['*.AppleDouble*','*.DS_Store*'])
+g:easytree_ignore_dirs            (Default: ['*.AppleDouble*','*.DS_Store*'])
     directory patterns present in the following list won't show up in easytree buffer
 
                                                          *g:easytree_ignore_files*
-g:easytree_ignore_files     (Default: ['*.swp'])
+g:easytree_ignore_files           (Default: ['*.swp'])
     file patterns present in the following list won't show up in easytree buffer
 
                                                          *g:easytree_ignore_find_result*
@@ -63,6 +63,11 @@ g:easytree_ignore_find_result     (Default: [])
                                                          *g:easytree_hijack_netrw*
 g:easytree_hijack_netrw     (Default: 1)
     if this option is enabled directories will be opened using easytree instead of |netrw|
+
+                                                         *g:easytree_width_auto_fit*
+g:easytree_width_auto_fit   (Default: 0)
+    if this option is enabled width of easytree window will be automaticly
+    resized if the longest line width will be greater than the easytree window width
 
 ============================================================================================
  2. USAGE                                                         *easytree.vim-usage*

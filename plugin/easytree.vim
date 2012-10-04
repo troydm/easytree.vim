@@ -54,6 +54,10 @@ if !exists("g:easytree_hijack_netrw")
     let g:easytree_hijack_netrw = 1
 endif
 
+if !exists("g:easytree_width_auto_fit")
+    let g:easytree_width_auto_fit = 0
+endif
+
 python << END
 
 import os,sys,shutil,fnmatch
@@ -672,6 +676,7 @@ function! s:UnexpandDir(fpath,linen)
         let linee -= 1
     endif
     exe 'python vim.current.buffer['.linee.'] = None'
+    call s:WidthAutoFit()
 endfunction
 
 function! s:ExpandDir(fpath,linen)
@@ -696,6 +701,7 @@ function! s:ExpandDir(fpath,linen)
         call append(linen,lvls.'  '.f)
         let linen += 1
     endfor
+    call s:WidthAutoFit()
     return linen
 endfunction
 
@@ -795,6 +801,16 @@ function! s:InitializeTree(dir)
         call append(line('$'),'  '.f)
     endfor
     setlocal nomodifiable
+    call s:WidthAutoFit()
+endfunction
+
+function! s:WidthAutoFit()
+    if g:easytree_width_auto_fit
+        let m = max(map(range(1,line('$')),"len(getline(v:val))"))+1
+        if m > winwidth(0)
+            exe 'vertical resize '.m
+        endif
+    endif
 endfunction
 
 function! s:OpenEasyTreeFile(location,fpath,mode)
