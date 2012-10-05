@@ -161,17 +161,37 @@ def EasyTreeCopyFiles():
         base = os.path.basename(f)
         dst = dpath+base
         if os.path.exists(f):
+            copy = False
+            overwrite = False
             if not os.path.exists(dst):
+                copy = True
+            else:
+                vim.command("echom '"+dst+" already exists'")
+                if int(vim.eval("<SID>AskConfirmationNoRedraw('would you like to overwrite it?')")) == 1:
+                    copy = True
+                    overwrite = True
+                    vim.command("echom 'overwriting file "+dst+"'")
+                elif int(vim.eval("<SID>AskConfirmationNoRedraw('would you like to paste it as another file?')")) == 1:
+                    while True:
+                        newbase = vim.eval("<SID>AskInputNoRedraw('"+dpath+"','"+base+"')")
+                        if newbase == None or len(newbase) == 0:
+                            break
+                        elif not os.path.exists(dpath+newbase):
+                            copy = True
+                            dst = dpath+newbase
+                            vim.command("echom 'saving file as "+dst+"'")
+                            break
+            if copy and f != dst:
                 try:
                     if os.path.isdir(f):
+                        if overwrite:
+                            shutil.rmtree(dst)
                         shutil.copytree(f,dst)
                     else:
                         shutil.copyfile(f,dst)
                     i += 1
                 except OSError, e:
                     print str(repr(e))
-            else:
-                vim.command("echom '"+dst+" already exists'")
         else:
             vim.command("echom '"+f+" doesn't exists'")
     if i == 1:
@@ -214,6 +234,12 @@ function! s:AskInput(message,val)
     return r
 endfunction
 
+function! s:AskInputNoRedraw(message,val)
+    let r = input(a:message,a:val)
+    echo ' '
+    return r
+endfunction
+
 function! s:AskInputComplete(message,val,complete)
     let r = input(a:message,a:val,a:complete)
     redraw
@@ -225,6 +251,12 @@ function! s:AskConfirmation(message)
     let r = input(a:message.' (y/n) ')
     redraw
     echo ''
+    return r == 'y' || r == 'yes'
+endfunction
+
+function! s:AskConfirmationNoRedraw(message)
+    let r = input(a:message.' (y/n) ')
+    echo ' '
     return r == 'y' || r == 'yes'
 endfunction
 
@@ -317,21 +349,34 @@ function! s:CopyFilesRange() range
     endif
 endfunction
 
+function! s:GetPasteBuffer()
+    let files = split(getreg(v:register),"\n")
+    return filter(files,'filereadable(v:val) || isdirectory(v:val)')
+endfunction
+
 function! s:EchoPasteBuffer()
-    for f in split(getreg(v:register),"\n")
-        echo f
-    endfor
+    let files = s:GetPasteBuffer()
+    if len(files) > 0 
+        echo 'paste buffer:'
+        for f in s:GetPasteBuffer()
+            echo f
+        endfor
+    else
+        echo 'no files in paste buffer'
+    endif
 endfunction
 
 function! s:PasteFiles(linen)
     let fpath = s:GetFullPathDir(a:linen)
-    let files = split(getreg(v:register),"\n")
+    let files = s:GetPasteBuffer()
     if len(files) > 0
         let filesm = '1 file'
         if len(files) > 1
             let filesm = len(files).' files'
         endif
-        call s:EchoPasteBuffer()
+        for f in files
+            echo f
+        endfor
         if s:AskConfirmation('are you sure you want to paste '.filesm.'?')
             python EasyTreeCopyFiles()
             call s:Refresh(a:linen)
