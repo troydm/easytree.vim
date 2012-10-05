@@ -1,7 +1,7 @@
 easytree.vim
 ============
 
-easybuffer.vim - is a simple tree file manager for vim.
+easytree.vim - is a simple tree file manager for vim.
 While being highly inspired by [NERDTree] it differs from it in it's approach to a file 
 management and takes a more traditional vim yank/paste file copy/paste/delete approach
 It's also more simpler in it's functionality and has much less features compared to other
