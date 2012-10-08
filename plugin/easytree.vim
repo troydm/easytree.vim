@@ -730,18 +730,15 @@ function! s:ExpandDir(fpath,linen)
     let lvl = s:GetLvl(getline(linen))
     let lvls = repeat('  ',lvl) 
     exe "let treelist = pyeval(\"EasyTreeListDir(vim.eval('a:fpath'),".b:showhidden.")\")"
+    let cascade = g:easytree_cascade_open_single_dir && len(treelist[1]) == 1 && len(treelist[2]) == 0
     for d in treelist[1]
         call append(linen,lvls.'▸ '.d)
         let linen += 1
         let fpath = s:GetFullPath(linen)
-        if has_key(b:expanded,fpath) && b:expanded[fpath]
+        if (has_key(b:expanded,fpath) && b:expanded[fpath]) || cascade
             let linen = s:ExpandDir(fpath,linen)
         endif
     endfor
-    if g:easytree_cascade_open_single_dir && len(treelist[1]) == 1 && len(treelist[2]) == 0
-        let fpath = s:GetFullPath(linen)
-        let linen = s:ExpandDir(fpath,linen)
-    endif
     for f in treelist[2]
         call append(linen,lvls.'  '.f)
         let linen += 1
