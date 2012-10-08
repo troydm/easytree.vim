@@ -13,12 +13,26 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 if !has("python")
-    echo "easytree needs vim compiled with +python option"
+    command! -nargs=? -complete=dir EasyTree echo "easytree needs vim compiled with +python option"
+    command! -nargs=? -complete=dir EasyTreeHere EasyTree
+    command! -nargs=? -complete=dir EasyTreeLeft EasyTree
+    command! -nargs=? -complete=dir EasyTreeRight EasyTree
+    command! -nargs=? -complete=dir EasyTreeTop EasyTree
+    command! -nargs=? -complete=dir EasyTreeBottom EasyTree
+    command! -nargs=? -complete=dir EasyTreeTopDouble EasyTree
+    command! -nargs=? -complete=dir EasyTreeBottomDouble EasyTree
     finish
 endif
 
 if !exists('*pyeval')
-    echo "easytree needs vim 7.3 with atleast 569 patchset included"
+    command! -nargs=? -complete=dir EasyTree echo "easytree needs vim 7.3.569 or newer"
+    command! -nargs=? -complete=dir EasyTreeHere EasyTree
+    command! -nargs=? -complete=dir EasyTreeLeft EasyTree
+    command! -nargs=? -complete=dir EasyTreeRight EasyTree
+    command! -nargs=? -complete=dir EasyTreeTop EasyTree
+    command! -nargs=? -complete=dir EasyTreeBottom EasyTree
+    command! -nargs=? -complete=dir EasyTreeTopDouble EasyTree
+    command! -nargs=? -complete=dir EasyTreeBottomDouble EasyTree
     finish
 endif
 
