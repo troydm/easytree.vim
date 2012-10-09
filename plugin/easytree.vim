@@ -892,9 +892,23 @@ function! s:OpenEasyTreeFile(location,fpath,mode)
         wincmd k
     endif
     if !empty(&buftype) && a:mode == 'edit' && a:location != 'here' && !wincreated
-        wincmd s
-        stopinsert
+        " find windows with file buffer
+        let wnrs = filter(range(1,winnr('$')),"empty(getbufvar(winbufnr(v:val),'&buftype'))") 
+        if len(wnrs) > 0
+            let wnr = winnr()
+            wincmd k
+            if !(winnr() != wnr && index(wnrs,winnr()) != -1)
+                exe wnr.'wincmd w'                
+                wincmd j
+                if !(winnr() != wnr && index(wnrs,winnr()) != -1)
+                    exe wnrs[0].'wincmd w'
+                endif
+            endif
+        else
+            wincmd s
+        endif
     endif
+    stopinsert
     if a:mode == 'edit'
         exe a:mode.' '.fpath
     elseif a:mode == 'sp'
