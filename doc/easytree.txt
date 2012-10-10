@@ -100,9 +100,10 @@ g:easytree_width_auto_fit   (Default: 0)
         To refresh current expanded directory listing press |r| while having your line over that directory
         Pressing |R| will refresh whole easytree buffer
     File search:
-        Press |f| to search for a file/directory and specify a pattern filename pattern you want to search for
+        Press |f| while having your cursor over some directory to search in and 
+        specify a filename pattern you want to search for in that directory
         Press |n| and |N| to move your cursor over search results
-        Pressing |F| instead of |f| will have repeat last search
+        Pressing |F| instead of |f| will have last search pattern pretyped
     File management:
         To create a new file/directory press |m| while having your cursor over/in directory were you want to 
         create a new file/directory. If name specified will have / as it's suffix, a directory will be created,

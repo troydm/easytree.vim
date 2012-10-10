@@ -532,14 +532,27 @@ function! s:GetDirLine(linen)
     return 1
 endfunction
 
-function! s:Find(find)
-    let find = s:AskInputComplete('find ',a:find,'file')
+function! s:Find(linen, find)
+    let linen = a:linen
+    if linen == 2
+        let linen = 1
+    endif
+    let fpath = s:GetFullPathDir(linen)
+    let find = s:AskInputComplete('search in '.fpath.' for ',a:find,'file')
     if !empty(find)
-        let fpath = getline(1)
         let b:find = find
         echo 'searching for '.find
         exe "let b:findresult = pyeval(\"EasyTreeFind(vim.eval('find'),vim.eval('fpath'),".b:showhidden.")\")"
         redraw
+        if fpath != getline(1)
+            let fpath = fpath[len(getline(1)):]
+            if len(fpath) > 0 && fpath[0] == '/' 
+                let fpath = fpath[1:]
+            endif
+            if len(fpath) > 0
+                let b:findresult = map(b:findresult,"fpath.'/'.v:val")
+            endif
+        endif
         if !empty(b:findresult)
             echo ''
             let b:findindex = -1
@@ -990,8 +1003,8 @@ function! s:OpenTree(win, dir)
     nnoremap <silent> <buffer> O :call <SID>ExpandAll(line('.'))<CR>
     nnoremap <silent> <buffer> x :call <SID>Unexpand(line('.'))<CR>
     nnoremap <silent> <buffer> X :call <SID>UnexpandAll(line('.'))<CR>
-    nnoremap <silent> <buffer> f :call <SID>Find('')<CR>
-    nnoremap <silent> <buffer> F :call <SID>Find(b:find)<CR>
+    nnoremap <silent> <buffer> f :call <SID>Find(line('.'),'')<CR>
+    nnoremap <silent> <buffer> F :call <SID>Find(line('.'),b:find)<CR>
     nnoremap <silent> <buffer> n :call <SID>FindNext()<CR>
     nnoremap <silent> <buffer> N :call <SID>FindBackward()<CR>
     nnoremap <silent> <buffer> u :call <SID>GoUpTree()<CR>
