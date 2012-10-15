@@ -56,6 +56,10 @@ if !exists("g:easytree_ignore_find_result")
     let g:easytree_ignore_find_result = []
 endif
 
+if !exists("g:easytree_use_plus_and_minus")
+    let g:easytree_use_plus_and_minus = 0
+endif
+
 if !exists("g:easytree_hijack_netrw")
     let g:easytree_hijack_netrw = 1
 endif
@@ -726,7 +730,11 @@ endfunction
 
 function! s:UnexpandDir(fpath,linen)
     let linen = a:linen
-    call setline(linen,substitute(getline(linen),'▾','▸',''))
+    if g:easytree_use_plus_and_minus
+        call setline(linen,substitute(getline(linen),'-','+',''))
+    else
+        call setline(linen,substitute(getline(linen),'▾','▸',''))
+    endif
     let lvl = s:GetLvl(getline(linen))
     let linen += 1
     let linee = linen
@@ -745,13 +753,21 @@ endfunction
 
 function! s:ExpandDir(fpath,linen)
     let linen = a:linen
-    call setline(linen,substitute(getline(linen),'▸','▾',''))
+    if g:easytree_use_plus_and_minus
+        call setline(linen,substitute(getline(linen),'+','-',''))
+    else
+        call setline(linen,substitute(getline(linen),'▸','▾',''))
+    endif
     let lvl = s:GetLvl(getline(linen))
     let lvls = repeat('  ',lvl) 
     exe "let treelist = pyeval(\"EasyTreeListDir(vim.eval('a:fpath'),".b:showhidden.")\")"
     let cascade = g:easytree_cascade_open_single_dir && len(treelist[1]) == 1 && len(treelist[2]) == 0
     for d in treelist[1]
-        call append(linen,lvls.'▸ '.d)
+        if g:easytree_use_plus_and_minus
+            call append(linen,lvls.'+ '.d)
+        else
+            call append(linen,lvls.'▸ '.d)
+        endif
         let linen += 1
         let fpath = s:GetFullPath(linen)
         if (has_key(b:expanded,fpath) && b:expanded[fpath]) || cascade
@@ -767,15 +783,15 @@ function! s:ExpandDir(fpath,linen)
 endfunction
 
 function! s:IsDir(line)
-    return !empty(matchlist(a:line,'^\s*[▸▾] \(.*\)$'))
+    return !empty(matchlist(a:line,'^\s*[▸▾+\-] \(.*\)$'))
 endfunction
 
 function! s:IsExpanded(line)
-    return !empty(matchlist(a:line,'^\s*▾ \(.*\)$'))
+    return !empty(matchlist(a:line,'^\s*[▾\-] \(.*\)$'))
 endfunction
 
 function! s:GetFName(line)
-    return matchlist(a:line,'^[▸▾ ]\+\(.*\)$')[1]
+    return matchlist(a:line,'^[▸▾+\- ]\+\(.*\)$')[1]
 endfunction
 
 function! s:GetParentLvlLinen(linen)
@@ -796,7 +812,7 @@ endfunction
 
 function! s:GetLvl(line)
     let lvl = 0
-    let lvls = '[▸▾ ] '
+    let lvls = '[▸▾+\- ] '
     while match(a:line, '^'.lvls) == 0
         let lvl += 1        
         let lvls = '  '.lvls
@@ -856,7 +872,11 @@ function! s:InitializeTree(dir)
     call setline(1, treelist[0])
     call append(1, '  .. (up a dir)')
     for d in treelist[1]
-        call append(line('$'),'▸ '.d)
+        if g:easytree_use_plus_and_minus
+            call append(line('$'),'+ '.d)
+        else
+            call append(line('$'),'▸ '.d)
+        endif
     endfor
     for f in treelist[2]
         call append(line('$'),'  '.f)

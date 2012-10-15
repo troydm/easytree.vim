@@ -60,6 +60,10 @@ g:easytree_ignore_files           (Default: ['*.swp'])
 g:easytree_ignore_find_result     (Default: [])
     file patterns present in the following list won't show up as find results
 
+                                                         *g:easytree_use_plus_and_minus*
+g:easytree_use_plus_and_minus     (Default: 0)
+    if this option is enabled + and - will be used to display expanded/closed directories
+
                                                          *g:easytree_hijack_netrw*
 g:easytree_hijack_netrw     (Default: 1)
     if this option is enabled directories will be opened using easytree instead of |netrw|
