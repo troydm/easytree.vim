@@ -45,7 +45,7 @@ if !exists("g:easytree_highlight_cursor_line")
 endif
 
 if !exists("g:easytree_ignore_dirs")
-    let g:easytree_ignore_dirs = ['*.AppleDouble*','*.DS_Store*']
+    let g:easytree_ignore_dirs = []
 endif
 
 if !exists("g:easytree_ignore_files")
