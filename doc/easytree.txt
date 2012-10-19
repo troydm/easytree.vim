@@ -1,9 +1,9 @@
-easytree.vim for Vim version 7.0+   Last change: 1 October, 2012
+easytree.vim for Vim version 7.0+   Last change: 19 October, 2012
 
 Maintainer: Dmitry "troydm" Geurkov <d.geurkov@gmail.com>
-Version: 0.1
+Version: 0.2
 Description: easytree.vim is a simple tree file manager
-Last Change: 1 October, 2012
+Last Change: 19 October, 2012
 License: Vim License (see :help license)
 Website: https://github.com/troydm/easytree.vim
 
@@ -120,6 +120,7 @@ g:easytree_width_auto_fit   (Default: 0)
         Same way to delete file/dir just move your cursor over that file/dir press |dd|
         To delete multiple files/dirs just select them in visual mode and press |d|
     Other actions:
+        To get information about file/dir just move your cursor over that file/dir and press |i|
         To toggle visibility of hidden files just press |I|
         To quickly access help just press |?|
         To close easytree window just press |q|

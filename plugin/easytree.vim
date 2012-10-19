@@ -1,8 +1,8 @@
 " easytree.vim - simple tree file manager for vim
 " Maintainer: Dmitry "troydm" Geurkov <d.geurkov@gmail.com>
-" Version: 0.1
+" Version: 0.2
 " Description: easytree.vim is a siple tree file manager
-" Last Change: 1 October, 2012
+" Last Change: 19 October, 2012
 " License: Vim License (see :help license)
 " Website: https://github.com/troydm/easytree.vim
 "
@@ -70,7 +70,10 @@ endif
 
 python << END
 
-import os,sys,shutil,fnmatch
+import random,os,grp,pwd,time,stat,sys,shutil,fnmatch,threading
+
+easytree_dirsize_calculator = None
+easytree_dirsize_calculator_cur_size = 0
 
 def EasyTreeFnmatchList(f,patterns):
     for p in patterns:
@@ -234,6 +237,82 @@ def EasyTreeRemoveFiles():
     else:
         messages.append(str(i)+" files deleted")
     return messages
+
+def EasyTreeGetSize(size):
+    if size >= 1073741824:
+        size = str(size/1073741824.0)
+        if size.find('.') != -1:
+            size = size[:size.index('.')+2]
+        return size + ' Gb'
+    elif size >= 1048576:
+        size = str(size/1048576.0) 
+        if size.find('.') != -1:
+            size = size[:size.index('.')+2]
+        return size + ' Mb'
+    elif size >= 1024:
+        size = str(size/1024.0) 
+        if size.find('.') != -1:
+            size = size[:size.index('.')+2]
+        return size + ' Kb'
+    else:
+        return str(size) + ' bytes'
+    
+def EasyTreeGetMode(m):
+    mode = ''
+    modes = 'drwxrwxrwx'
+    fs = [stat.S_IFDIR, stat.S_IRUSR, stat.S_IWUSR, stat.S_IXUSR, stat.S_IRGRP, stat.S_IWGRP, stat.S_IXGRP, stat.S_IROTH, stat.S_IWOTH, stat.S_IXOTH]
+    i = 0
+    for f in fs:
+        if f & m:
+            mode += modes[i]
+        else:
+            mode += '-'
+        i += 1
+    return mode
+
+def EasyTreeGetDirSize(dir):
+    global easytree_dirsize_calculator, easytree_dirsize_calculator_curr_size
+    total = os.path.getsize(dir)
+    easytree_dirsize_calculator_curr_size = total
+    for dirpath, dirnames, filenames in os.walk(dir):
+        if easytree_dirsize_calculator == None:
+            return
+        for d in dirnames:
+            dp = os.path.join(dirpath, d)
+            try:
+                total += os.path.getsize(dp)
+            except:
+                pass
+        for f in filenames:
+            fp = os.path.join(dirpath, f)
+            try:
+                total += os.path.getsize(fp)
+            except:
+                pass
+        easytree_dirsize_calculator_curr_size = total
+    easytree_dirsize_calculator_curr_size = total
+    return total
+
+def EasyTreeGetInfo():
+    global easytree_dirsize_calculator
+    path = vim.eval('fpath')
+    if os.path.exists(path):
+        st = os.stat(path)
+        name = os.path.basename(path)
+        user = pwd.getpwuid(st.st_uid).pw_name
+        group = grp.getgrgid(st.st_gid).gr_name
+        if stat.S_ISDIR(st.st_mode):
+            size = 0
+            if easytree_dirsize_calculator != None:
+                t = easytree_dirsize_calculator
+                easytree_dirsize_calculator = None
+                t.join()
+            easytree_dirsize_calculator = threading.Thread(target=EasyTreeGetDirSize, args=(path,))
+            easytree_dirsize_calculator.setDaemon(True)
+            easytree_dirsize_calculator.start()
+        else:
+            size = st.st_size
+        return [name,user,group,EasyTreeGetSize(size), EasyTreeGetMode(st.st_mode), time.ctime(st.st_mtime)]
 
 END
 
@@ -975,6 +1054,27 @@ function! s:GetNewEasyTreeWindowId()
     return id
 endfunction
 
+function! s:GetInfo(linen)
+    let fpath = s:GetFullPath(a:linen)
+    let info = pyeval('EasyTreeGetInfo()')
+    echo 'name: '.info[0].'  owner: '.info[1].':'.info[2].'  size: '.info[3].'  mode: '.info[4].'  last modified: '.info[5]
+    if pyeval('easytree_dirsize_calculator != None')
+        while 1
+            sleep 1
+            let info[3] = pyeval("EasyTreeGetSize(easytree_dirsize_calculator_curr_size)+(('.'*random.randint(1,3)).ljust(3))")
+            redraw
+            echo 'name: '.info[0].'  owner: '.info[1].':'.info[2].'  size: '.info[3].'  mode: '.info[4].'  last modified: '.info[5]
+            if !pyeval('easytree_dirsize_calculator.isAlive()')
+                let info[3] = pyeval("EasyTreeGetSize(easytree_dirsize_calculator_curr_size)")
+                python easytree_dirsize_calculator = None
+                break
+            endif
+        endwhile
+    endif
+    redraw
+    echo 'name: '.info[0].'  owner: '.info[1].':'.info[2].'  size: '.info[3].'  mode: '.info[4].'  last modified: '.info[5]
+endfunction
+
 function! s:OpenEasyTreeWindow(location)
     let treeid = s:GetNewEasyTreeWindowId()
     let treename = fnameescape('easytree - '.treeid)
@@ -1034,6 +1134,7 @@ function! s:OpenTree(win, dir)
     nnoremap <silent> <buffer> m :call <SID>CreateFile(line('.'))<CR>
     nnoremap <silent> <buffer> r :call <SID>Refresh(line('.'))<CR>
     nnoremap <silent> <buffer> R :call <SID>RefreshAll()<CR>
+    nnoremap <silent> <buffer> i :try \| call <SID>GetInfo(line('.')) \| finally \| exe 'py easytree_dirsize_calculator=None' \| endtry<CR>
     nnoremap <silent> <buffer> I :call <SID>ToggleHidden()<CR>
     nnoremap <silent> <buffer> J :call <SID>ChangeDirTo()<CR>
     nnoremap <silent> <buffer> y :call <SID>CopyFile(line('.'))<CR>

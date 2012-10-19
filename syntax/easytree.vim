@@ -1,8 +1,8 @@
 " easytree.vim - simple tree file manager for vim
 " Maintainer: Dmitry "troydm" Geurkov <d.geurkov@gmail.com>
-" Version: 0.1
+" Version: 0.2
 " Description: easytree.vim is a siple tree file manager
-" Last Change: 1 October, 2012
+" Last Change: 19 October, 2012
 " License: Vim License (see :help license)
 " Website: https://github.com/troydm/easytree.vim
 "
