@@ -1,8 +1,8 @@
 " easytree.vim - simple tree file manager for vim
 " Maintainer: Dmitry "troydm" Geurkov <d.geurkov@gmail.com>
-" Version: 0.2
+" Version: 0.2.1
 " Description: easytree.vim is a siple tree file manager
-" Last Change: 19 October, 2012
+" Last Change: 10 January, 2013
 " License: Vim License (see :help license)
 " Website: https://github.com/troydm/easytree.vim
 "
@@ -58,16 +58,16 @@ function! s:AskInputComplete(message,val,complete)
 endfunction
 
 function! s:AskConfirmation(message)
-    let r = input(a:message.' (y/n) ')
+    let r = tolower(input(a:message.' (y/n) '))
     redraw
     echo ''
-    return r == 'y' || r == 'yes'
+    return r == 'y' || r == 'ye' || r == 'yes'
 endfunction
 
 function! s:AskConfirmationNoRedraw(message)
-    let r = input(a:message.' (y/n) ')
+    let r = tolower(input(a:message.' (y/n) '))
     echo ' '
-    return r == 'y' || r == 'yes'
+    return r == 'y' || r == 'ye' || r == 'yes'
 endfunction
 " }}}
 
@@ -216,17 +216,77 @@ endfunction
 " }}}
 
 " action functions {{{
+function! s:EditIgnoreFiles()
+    let il = ''
+    for f in b:ignore_files
+        let il .= f.','
+    endfor
+    if len(il) > 0
+        let il = il[:-2]
+    endif
+    let mil = ''
+    for f in split(s:AskInput("ignore files: ",il),',')
+        let mil .= "'".f."',"
+    endfor
+    if len(mil) > 0
+        let mil = mil[:-2]
+    endif
+    exe 'let b:ignore_files = ['.mil.']'
+    call s:RefreshAll()
+endfunction
+
+function! s:EditIgnoreDirs()
+    let il = ''
+    for d in b:ignore_dirs
+        let il .= d.','
+    endfor
+    if len(il) > 0
+        let il = il[:-2]
+    endif
+    let mil = ''
+    for d in split(s:AskInput("ignore dirs: ",il),',')
+        let mil .= "'".d."',"
+    endfor
+    if len(mil) > 0
+        let mil = mil[:-2]
+    endif
+    exe 'let b:ignore_dirs = ['.mil.']'
+    call s:RefreshAll()
+endfunction
+
+function! s:EditIgnoreFindResult()
+    let il = ''
+    for f in b:ignore_find_result
+        let il .= f.','
+    endfor
+    if len(il) > 0
+        let il = il[:-2]
+    endif
+    let mil = ''
+    for f in split(s:AskInput("ignore find result: ",il),',')
+        let mil .= "'".f."',"
+    endfor
+    if len(mil) > 0
+        let mil = mil[:-2]
+    endif
+    exe 'let b:ignore_find_result = ['.mil.']'
+endfunction
+
 function! s:ChangeDir(linen)
     let fpath = s:GetFullPathDir(a:linen)
-    call s:InitializeTree(fpath)
+    call s:InitializeNewTree(fpath)
     normal! 3G0
 endfunction
 
-function! s:ChangeDirTo()
-    let path = s:AskInputComplete('go to ',getline(1),'dir')
+function! s:ChangeDirTo(...)
+    if len(a:000) > 0
+        let path = a:1
+    else
+        let path = s:AskInputComplete('go to ',getline(1),'dir')
+    endif
     if !empty(path) 
         if pyeval("os.path.isdir(os.path.expanduser(vim.eval('path')))")
-            call s:InitializeTree(path)
+            call s:InitializeNewTree(path)
         else
             redraw
             echo 'invalid path '.path
@@ -252,6 +312,11 @@ function! s:ToggleHidden()
         let b:showhidden = 1
     endif
     call s:RefreshAll()
+    if b:showhidden
+        echo 'showing hidden files'
+    else
+        echo 'not showning hidden files'
+    endif
 endfunction
 
 function! s:CopyFile(linen)
@@ -372,18 +437,27 @@ function! s:RenameFile(linen)
 endfunction
 
 function! s:RefreshAll()
+    if line('.') > 2
+        let prevfpath = s:GetFullPath(line('.'))
+    endif
     let toexpand = {}
-    for linen in range(3,line('$')) 
-        let line = getline(linen)
-        if s:GetLvl(line) == 1 && s:IsDir(line) && s:IsExpanded(line)
-            let toexpand[s:GetFullPath(linen)] = 1
-        endif
-    endfor
-    let expanded = b:expanded
+    let newtree = line('$') == 1
+    if !newtree
+        for d in keys(b:expanded)
+            if b:expanded[d]
+                let toexpand[d] = 1
+            endif
+        endfor
+        let expanded = b:expanded
+    endif
     let line = getline(1)
     let pos = getpos('.')
     call s:InitializeTree(line)
-    let b:expanded = expanded
+    if newtree
+        let toexpand = filter(b:expanded,'v:val == 1')
+    else
+        let b:expanded = expanded
+    endif
     let linen = 3
     setlocal modifiable
     while line('$') >= linen
@@ -397,6 +471,27 @@ function! s:RefreshAll()
         let linen += 1
     endwhile
     setlocal nomodifiable
+    if pos[1] > 2
+        if prevfpath != s:GetFullPath(pos[1])
+            let i = 1
+            let maxln = line('$')
+            while (pos[1]-i) > 2 || (pos[1]+i) <= maxln
+                if (pos[1]-i) > 2
+                    if prevfpath == s:GetFullPath(pos[1]-i)
+                        let pos[1] -= i
+                        break
+                    endif
+                endif
+                if (pos[1]+i) <= maxln
+                    if prevfpath == s:GetFullPath(pos[1]+i)
+                        let pos[1] += i
+                        break
+                    endif
+                endif
+                let i += 1
+            endwhile
+        endif
+    endif
     call setpos('.',pos)
     redraw
 endfunction
@@ -519,6 +614,8 @@ function! s:EnterPressed()
                 let b:expanded[fpath] = 1
             endif
             setlocal nomodifiable
+            redraw
+            echo ''
         else
             " Open file
             call s:OpenFile(fpath,'edit')
@@ -526,7 +623,7 @@ function! s:EnterPressed()
     elseif line('.') == 2
         let fpath = s:GetFullPath(line('.'))
         let pos = getpos('.')
-        call s:InitializeTree(fpath)
+        call s:InitializeNewTree(fpath)
         call setpos('.',pos)
     endif
 endfunction
@@ -555,9 +652,13 @@ function! s:ExpandAll(linen)
             let linesexpanded = -lines
             for i in range(1,lines)
                 let linesexpanded += lines
-                let lines = line('$')
-                call s:ExpandAll(a:linen+i+linesexpanded)
-                let lines = line('$') - lines
+                if s:IsDir(getline(a:linen+i+linesexpanded))
+                    let lines = line('$')
+                    call s:ExpandAll(a:linen+i+linesexpanded)
+                    let lines = line('$') - lines
+                else
+                    let lines = 0
+                endif
             endfor
         endif
     endif
@@ -629,6 +730,8 @@ function! s:UnexpandDir(fpath,linen)
 endfunction
 
 function! s:ExpandDir(fpath,linen)
+    redraw
+    echo 'expanding '.a:fpath
     let linen = a:linen
     if g:easytree_use_plus_and_minus
         call setline(linen,substitute(getline(linen),'+','-',''))
@@ -663,7 +766,6 @@ endfunction
 " easytree window functions {{{
 function! s:InitializeTree(dir)
     setlocal modifiable
-    let b:expanded = {}
     let b:find = ''
     let b:findresult = []
     let treelist = pyeval("easytree.EasyTreeListDir(vim.eval('a:dir'),".b:showhidden.")")
@@ -682,6 +784,25 @@ function! s:InitializeTree(dir)
     endfor
     setlocal nomodifiable
     call s:WidthAutoFit()
+endfunction
+
+function! s:InitializeNewTree(dir)
+    let dir = a:dir
+    if dir != '/' && dir[len(dir)-1] == '/'
+        let dir = dir[:-2]
+    endif
+    setlocal modifiable
+    normal! ggdG
+    call setline(1,dir)
+    setlocal nomodifiable
+    let b:showhidden = g:easytree_show_hidden_files 
+    let b:ignore_files = g:easytree_ignore_files
+    let b:ignore_dirs = g:easytree_ignore_dirs
+    let b:ignore_find_result = g:easytree_ignore_find_result
+    if !(g:easytree_auto_load_settings && s:LoadSetting(dir))
+        let b:expanded = {}
+    endif
+    call s:RefreshAll()
 endfunction
 
 function! s:WidthAutoFit()
@@ -817,13 +938,64 @@ function! s:OpenEasyTreeWindow(location)
 endfunction
 " }}}
 
+" load/save settings functions {{{
+function! s:SaveSetting()
+    call writefile(["let b:ignore_files = ".string(b:ignore_files), 
+                \ "let b:ignore_dirs = ".string(b:ignore_dirs), 
+                \ "let b:ignore_find_result = ".string(b:ignore_find_result), 
+                \ "let b:showhidden = ".b:showhidden, 
+                \ "let b:expanded = ".string(b:expanded)],
+                \ s:GetFullPath(1).'/'.g:easytree_settings_file)
+endfunction
+
+function! s:LoadSetting(dir)
+    let sf = a:dir.'/'.g:easytree_settings_file
+    if filereadable(sf)
+        for c in readfile(sf)
+            exe c
+        endfor
+        return 1
+    endif
+    return 0
+endfunction
+
+function! s:LoadGlobalTreeSetting()
+    if s:AskConfirmation('are you sure you want to load global settings?')
+        let b:showhidden = g:easytree_show_hidden_files 
+        let b:ignore_files = g:easytree_ignore_files
+        let b:ignore_dirs = g:easytree_ignore_dirs
+        let b:ignore_find_result = g:easytree_ignore_find_result
+        let b:expanded = {}
+        call s:RefreshAll()
+    endif
+endfunction
+
+function! s:LoadTreeSetting()
+    if s:AskConfirmation('are you sure you want to load settings?')
+        if s:LoadSetting(getline(1))
+            call s:RefreshAll()
+        else
+            echo 'no settings file'
+        endif
+    endif
+endfunction
+
+function! s:SaveTreeSetting()
+    if s:AskConfirmation('are you sure you want to save settings?')
+        call s:SaveSetting()
+        echo 'settings file saved'
+    endif
+endfunction
+" }}}
+
 " global functions {{{
 function! easytree#OpenTree(win, dir)
     let dir = a:dir
     if empty(dir)
         let dir = getcwd()
     endif
-    if !pyeval("os.path.isdir(os.path.expanduser(vim.eval('dir')))")
+    let dir = pyeval("os.path.expanduser(vim.eval('dir'))")
+    if !pyeval("os.path.isdir(vim.eval('dir'))")
         echo 'invalid path '.dir
         return
     endif
@@ -835,17 +1007,19 @@ function! easytree#OpenTree(win, dir)
     if g:easytree_highlight_cursor_line
         setlocal cursorline
     endif
-    let b:showhidden = g:easytree_show_hidden_files 
     nnoremap <silent> <buffer> <Enter> :call <SID>EnterPressed()<CR>
     nnoremap <silent> <buffer> e :call <SID>Open(line('.'))<CR>
     nnoremap <silent> <buffer> vs :call <SID>VerticlySplitOpen(line('.'))<CR>
     nnoremap <silent> <buffer> sp :call <SID>SplitOpen(line('.'))<CR>
     nnoremap <silent> <buffer> q :bd!<CR>
-    nnoremap <silent> <buffer> o :call <SID>Expand(line('.'))<CR>
-    nnoremap <silent> <buffer> O :call <SID>ExpandAll(line('.'))<CR>
+    nnoremap <silent> <buffer> o :call <SID>Expand(line('.')) \| redraw \| echo ''<CR>
+    nnoremap <silent> <buffer> O :call <SID>ExpandAll(line('.')) \| redraw \| echo ''<CR>
     nnoremap <silent> <buffer> x :call <SID>Unexpand(line('.'))<CR>
     nnoremap <silent> <buffer> X :call <SID>UnexpandAll(line('.'))<CR>
     nnoremap <silent> <buffer> f :call <SID>Find(line('.'),'')<CR>
+    nnoremap <silent> <buffer> zf :call <SID>EditIgnoreFiles()<CR>
+    nnoremap <silent> <buffer> zd :call <SID>EditIgnoreDirs()<CR>
+    nnoremap <silent> <buffer> zs :call <SID>EditIgnoreFindResult()<CR>
     nnoremap <silent> <buffer> F :call <SID>Find(line('.'),b:find)<CR>
     nnoremap <silent> <buffer> n :call <SID>FindNext()<CR>
     nnoremap <silent> <buffer> N :call <SID>FindBackward()<CR>
@@ -856,9 +1030,13 @@ function! easytree#OpenTree(win, dir)
     nnoremap <silent> <buffer> m :call <SID>CreateFile(line('.'))<CR>
     nnoremap <silent> <buffer> r :call <SID>Refresh(line('.'))<CR>
     nnoremap <silent> <buffer> R :call <SID>RefreshAll()<CR>
-    nnoremap <silent> <buffer> i :try \| call <SID>GetInfo(line('.')) \| finally \| exe 'py easytree_dirsize_calculator=None' \| endtry<CR>
+    nnoremap <silent> <buffer> i :try \| call <SID>GetInfo(line('.')) \| finally \| exe 'py easytree.easytree_dirsize_calculator=None' \| endtry<CR>
     nnoremap <silent> <buffer> I :call <SID>ToggleHidden()<CR>
+    nnoremap <silent> <buffer> H :call <SID>ChangeDirTo(expand('~'))<CR>
     nnoremap <silent> <buffer> J :call <SID>ChangeDirTo()<CR>
+    nnoremap <silent> <buffer> K :call <SID>SaveTreeSetting()<CR>
+    nnoremap <silent> <buffer> L :call <SID>LoadTreeSetting()<CR>
+    nnoremap <silent> <buffer> gL :call <SID>LoadGlobalTreeSetting()<CR>
     nnoremap <silent> <buffer> y :call <SID>CopyFile(line('.'))<CR>
     nnoremap <silent> <buffer> yy :call <SID>CopyFile(line('.'))<CR>
     vnoremap <silent> <buffer> y :call <SID>CopyFilesRange()<CR>
@@ -866,8 +1044,7 @@ function! easytree#OpenTree(win, dir)
     nnoremap <silent> <buffer> P :call <SID>EchoPasteBuffer()<CR>
     nnoremap <silent> <buffer> dd :call <SID>RemoveFile(line('.'))<CR>
     vnoremap <silent> <buffer> d :call <SID>RemoveFiles()<CR>
-    nnoremap <silent> <buffer> ? :help EasyTree<CR>
-    call s:InitializeTree(dir)
+    call s:InitializeNewTree(dir)
 endfunction
 " }}}
 " }}}

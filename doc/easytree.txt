@@ -1,11 +1,13 @@
-easytree.vim for Vim version 7.0+   Last change: 19 October, 2012
+easytree.vim for Vim version 7.0+   Last change: 10 January, 2013
 
 Maintainer: Dmitry "troydm" Geurkov <d.geurkov@gmail.com>
-Version: 0.2
+Version: 0.2.1
 Description: easytree.vim is a simple tree file manager
-Last Change: 19 October, 2012
+Last Change: 10 January, 2013
 License: Vim License (see :help license)
 Website: https://github.com/troydm/easytree.vim
+
+============================================================================================
 
 Help on using easytree.vim                                     *easytree.vim*
 
@@ -51,18 +53,29 @@ g:easytree_highlight_cursor_line (Default: 1)
                                                          *g:easytree_ignore_dirs*
 g:easytree_ignore_dirs            (Default: [])
     directory patterns present in the following list won't show up in easytree buffer
+    you can edit this list in your current tree by pressing |zd|
 
                                                          *g:easytree_ignore_files*
 g:easytree_ignore_files           (Default: ['*.swp'])
     file patterns present in the following list won't show up in easytree buffer
+    you can edit this list in your current tree by pressing |zf|
 
                                                          *g:easytree_ignore_find_result*
 g:easytree_ignore_find_result     (Default: [])
     file patterns present in the following list won't show up as find results
+    you can edit this list in your current tree by pressing |zs|
 
                                                          *g:easytree_use_plus_and_minus*
 g:easytree_use_plus_and_minus     (Default: 0)
     if this option is enabled + and - will be used to display expanded/closed directories
+
+                                                         *g:easytree_auto_load_settings*
+g:easytree_auto_load_settings     (Default: 1)
+    if this option is enabled your tree settings are automaticly loaded
+
+                                                         *g:easytree_settings_file*
+g:easytree_settings_file          (Default: '.easytree')
+    This is the name of tree settings file that is saved relative to your tree directory
 
                                                          *g:easytree_hijack_netrw*
 g:easytree_hijack_netrw     (Default: 1)
@@ -101,6 +114,7 @@ g:easytree_width_auto_fit   (Default: 0)
         line and press |C| to use it as root for easytree. 
         Pressing |cd| will make that directory current working directory but won't change the root of easytree
         To jump to another directory press |J| and specify a full path to the directory you want to jump to
+        To quickly go to your home directory just press |H|
         To refresh current expanded directory listing press |r| while having your line over that directory
         Pressing |R| will refresh whole easytree buffer
     File search:
@@ -119,9 +133,18 @@ g:easytree_width_auto_fit   (Default: 0)
         just move your cursor over the directory you want to paste your files/dirs into and press |p|  
         Same way to delete file/dir just move your cursor over that file/dir press |dd|
         To delete multiple files/dirs just select them in visual mode and press |d|
+    Tree settings management:
+        To save tree settings press |K|
+        To load tree settings press |L|
+        To load global tree settings press |gL|
+        Tree settings are saved and loaded into |g:easytree_settings_file| file
     Other actions:
         To get information about file/dir just move your cursor over that file/dir and press |i|
         To toggle visibility of hidden files just press |I|
+        To hide some files in current tree according to comma seperated pattern list use |zf|
+        To hide some dirs in current tree according to comma seperated pattern list use |zd|
+        To hide find results in current tree according to comma seperated pattern list use |zs|
+        /dirs  and |S|
         To quickly access help just press |?|
         To close easytree window just press |q|
 

@@ -1,8 +1,8 @@
 # easytree.vim - simple tree file manager for vim
 # Maintainer: Dmitry "troydm" Geurkov <d.geurkov@gmail.com>
-# Version: 0.2
+# Version: 0.2.1
 # Description: easytree.vim is a siple tree file manager
-# Last Change: 19 October, 2012
+# Last Change: 10 January, 2013
 # License: Vim License (see :help license)
 # Website: https://github.com/troydm/easytree.vim
 
@@ -20,15 +20,15 @@ def EasyTreeFnmatchList(f,patterns):
 def EasyTreeFind(pattern,dir,showhidden):
     if not ('*' in pattern or '?' in pattern or '[' in pattern):
         pattern = '*'+pattern+'*'
-    ignore_find_result = vim.eval('g:easytree_ignore_find_result')
+    ignore_find_result = vim.eval('b:ignore_find_result')
     filelist = EasyTreeList(dir,showhidden, lambda f: fnmatch.fnmatch(f,pattern))
     filelist = filter(lambda f: not EasyTreeFnmatchList(f,ignore_find_result), filelist)
     return filelist
 
 def EasyTreeList(dir,showhidden,findfilter):
     dir = os.path.expanduser(dir)
-    ignore_dirs = vim.eval('g:easytree_ignore_dirs')
-    ignore_files = vim.eval('g:easytree_ignore_files')
+    ignore_dirs = vim.eval('b:ignore_dirs')
+    ignore_files = vim.eval('b:ignore_files')
     filelist = []
     showhidden = int(showhidden) == 1
     for root, dirs, files in os.walk(dir):
@@ -57,8 +57,8 @@ def EasyTreeList(dir,showhidden,findfilter):
 
 def EasyTreeListDir(dir,showhidden):
     dir = os.path.expanduser(dir)
-    ignore_dirs = vim.eval('g:easytree_ignore_dirs')
-    ignore_files = vim.eval('g:easytree_ignore_files')
+    ignore_dirs = vim.eval('b:ignore_dirs')
+    ignore_files = vim.eval('b:ignore_files')
     for root, dirs, files in os.walk(dir):
         if int(showhidden) == 0:
             dirs = filter(lambda d: not d.startswith("."),dirs)
