@@ -614,8 +614,7 @@ function! s:EnterPressed()
                 let b:expanded[fpath] = 1
             endif
             setlocal nomodifiable
-            redraw
-            echo ''
+            call s:ExpandCleanup()
         else
             " Open file
             call s:OpenFile(fpath,'edit')
@@ -662,6 +661,12 @@ function! s:ExpandAll(linen)
             endfor
         endif
     endif
+endfunction
+
+function! s:ExpandCleanup()
+    redraw
+    echo ''
+    silent! unlet b:expandtime
 endfunction
 
 function! s:Unexpand(linen)
@@ -733,12 +738,9 @@ function! s:ExpandDir(fpath,linen)
     if !exists('b:expandtime')
         let b:expandtime = reltime()
     else
-        let tdiff = str2float(reltimestr(reltime(b:expandtime)))
-        if tdiff >= 1.0
-            if tdiff <= 1.5
-                redraw
-                echo 'expanding '.a:fpath
-            endif
+        if str2float(reltimestr(reltime(b:expandtime))) >= 0.5
+            redraw
+            echo 'expanding '.a:fpath
             let b:expandtime = reltime()
         endif
     endif
@@ -1022,8 +1024,8 @@ function! easytree#OpenTree(win, dir)
     nnoremap <silent> <buffer> vs :call <SID>VerticlySplitOpen(line('.'))<CR>
     nnoremap <silent> <buffer> sp :call <SID>SplitOpen(line('.'))<CR>
     nnoremap <silent> <buffer> q :bd!<CR>
-    nnoremap <silent> <buffer> o :call <SID>Expand(line('.')) \| redraw \| echo ''<CR>
-    nnoremap <silent> <buffer> O :call <SID>ExpandAll(line('.')) \| redraw \| echo ''<CR>
+    nnoremap <silent> <buffer> o :call <SID>Expand(line('.')) \| call <SID>ExpandCleanup()<CR>
+    nnoremap <silent> <buffer> O :call <SID>ExpandAll(line('.')) \| call <SID>ExpandCleanup()<CR>
     nnoremap <silent> <buffer> x :call <SID>Unexpand(line('.'))<CR>
     nnoremap <silent> <buffer> X :call <SID>UnexpandAll(line('.'))<CR>
     nnoremap <silent> <buffer> f :call <SID>Find(line('.'),'')<CR>
