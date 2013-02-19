@@ -730,8 +730,18 @@ function! s:UnexpandDir(fpath,linen)
 endfunction
 
 function! s:ExpandDir(fpath,linen)
-    redraw
-    echo 'expanding '.a:fpath
+    if !exists('b:expandtime')
+        let b:expandtime = str2float(reltimestr(reltime()))
+    else
+        let tdiff = (str2float(reltimestr(reltime())) - b:expandtime) 
+        if tdiff >= 1.0
+            if tdiff <= 1.5
+                redraw
+                echo 'expanding '.a:fpath
+            endif
+            let b:expandtime = str2float(reltimestr(reltime()))
+        endif
+    endif
     let linen = a:linen
     if g:easytree_use_plus_and_minus
         call setline(linen,substitute(getline(linen),'+','-',''))
@@ -1000,7 +1010,7 @@ function! easytree#OpenTree(win, dir)
         return
     endif
     call s:OpenEasyTreeWindow(a:win)
-    setlocal filetype=easytree buftype=nofile bufhidden=wipe nobuflisted noswapfile nowrap nonumber 
+    setlocal filetype=easytree buftype=nofile bufhidden=wipe nobuflisted noswapfile nowrap nonumber winfixwidth
     if g:easytree_show_line_numbers
         setlocal number
     endif
