@@ -731,15 +731,15 @@ endfunction
 
 function! s:ExpandDir(fpath,linen)
     if !exists('b:expandtime')
-        let b:expandtime = str2float(reltimestr(reltime()))
+        let b:expandtime = reltime()
     else
-        let tdiff = (str2float(reltimestr(reltime())) - b:expandtime) 
+        let tdiff = str2float(reltimestr(reltime(b:expandtime)))
         if tdiff >= 1.0
             if tdiff <= 1.5
                 redraw
                 echo 'expanding '.a:fpath
             endif
-            let b:expandtime = str2float(reltimestr(reltime()))
+            let b:expandtime = reltime()
         endif
     endif
     let linen = a:linen
