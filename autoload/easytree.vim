@@ -29,7 +29,7 @@ python << EOF
 import vim, os, random, sys
 easytree_path = vim.eval("expand('<sfile>:h')")
 if not easytree_path in sys.path:
-    sys.path.append(easytree_path)
+    sys.path.insert(0, easytree_path)
 del easytree_path 
 import easytree
 EOF
