@@ -84,7 +84,7 @@ if !exists("g:easytree_width_auto_fit")
 endif
 
 if !exists("g:easytree_legacy_mappings")
-    let g:easytree_legacy_mappings = 0
+    let g:easytree_legacy_mappings = 1
 endif
 " }}}
 

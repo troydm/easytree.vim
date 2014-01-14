@@ -86,6 +86,13 @@ g:easytree_width_auto_fit   (Default: 0)
     if this option is enabled width of easytree window will be automaticly
     resized if the longest line width will be greater than the easytree window width
 
+                                                         *g:easytree_legacy_mappings
+g:easytree_legacy_mappings   (Default: 1)
+    if this option is disabled, some keymaps are modified, while others are
+    added. To open a file in a new vertical split press |v| instead of |vs|.
+    To open a file in a new horizontal split press |s| instead of |sp|.
+    To open a file in a new tab press |t|.
+
 ============================================================================================
  2. USAGE                                                         *easytree.vim-usage*
 
