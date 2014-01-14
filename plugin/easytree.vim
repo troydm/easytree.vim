@@ -102,7 +102,7 @@ command! -nargs=? -complete=dir EasyTreeBottomDouble call easytree#OpenTree('bot
 " netrw hijacking related functions {{{
 function! s:OpenDirHere(dir)
     if isdirectory(a:dir)
-        call easytree#OpenTree('edit here',a:dir) 
+        call easytree#OpenTree('edit here',a:dir)
     endif
 endfunction
 
