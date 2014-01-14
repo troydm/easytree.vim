@@ -935,7 +935,16 @@ function! s:GetInfo(linen)
     echo 'name: '.info[0].'  owner: '.info[1].':'.info[2].'  size: '.info[3].'  mode: '.info[4].'  last modified: '.info[5]
 endfunction
 
+function! s:CloseEasyTreeWindow()
+    if match(b:location,'here') == 0
+        exe ":b" . b:oldid
+    else
+        bd!
+    endif
+endfunction
+
 function! s:OpenEasyTreeWindow(location)
+    let oldid = bufnr('%')
     let treeid = s:GetNewEasyTreeWindowId()
     let treename = fnameescape('easytree - '.treeid)
     let location = a:location
@@ -952,6 +961,7 @@ function! s:OpenEasyTreeWindow(location)
         exe 'edit '.treename
         let location = m[1]
     endif
+    let b:oldid = oldid
     let b:treeid = treeid
     let b:location = location
 endfunction
@@ -1039,7 +1049,7 @@ function! easytree#OpenTree(win, dir)
 
     nnoremap <silent> <buffer> <Enter> :call <SID>EnterPressed()<CR>
     nnoremap <silent> <buffer> e :call <SID>Open(line('.'))<CR>
-    nnoremap <silent> <buffer> q :bd!<CR>
+    nnoremap <silent> <buffer> q :call <SID>CloseEasyTreeWindow()<CR>
     nnoremap <silent> <buffer> o :call <SID>Expand(line('.')) \| call <SID>ExpandCleanup()<CR>
     nnoremap <silent> <buffer> O :call <SID>ExpandAll(line('.')) \| call <SID>ExpandCleanup()<CR>
     nnoremap <silent> <buffer> x :call <SID>Unexpand(line('.'))<CR>
