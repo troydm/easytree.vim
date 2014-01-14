@@ -1019,10 +1019,18 @@ function! easytree#OpenTree(win, dir)
     if g:easytree_highlight_cursor_line
         setlocal cursorline
     endif
+
+    if g:easytree_legacy_mappings
+        nnoremap <silent> <buffer> vs :call <SID>VerticlySplitOpen(line('.'))<CR>
+        nnoremap <silent> <buffer> sp :call <SID>SplitOpen(line('.'))<CR>
+    else
+        nnoremap <silent> <buffer> v :call <SID>VerticlySplitOpen(line('.'))<CR>
+        nnoremap <silent> <buffer> s :call <SID>SplitOpen(line('.'))<CR>
+    endif
+
+
     nnoremap <silent> <buffer> <Enter> :call <SID>EnterPressed()<CR>
     nnoremap <silent> <buffer> e :call <SID>Open(line('.'))<CR>
-    nnoremap <silent> <buffer> vs :call <SID>VerticlySplitOpen(line('.'))<CR>
-    nnoremap <silent> <buffer> sp :call <SID>SplitOpen(line('.'))<CR>
     nnoremap <silent> <buffer> q :bd!<CR>
     nnoremap <silent> <buffer> o :call <SID>Expand(line('.')) \| call <SID>ExpandCleanup()<CR>
     nnoremap <silent> <buffer> O :call <SID>ExpandAll(line('.')) \| call <SID>ExpandCleanup()<CR>

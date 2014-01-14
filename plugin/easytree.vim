@@ -82,6 +82,10 @@ endif
 if !exists("g:easytree_width_auto_fit")
     let g:easytree_width_auto_fit = 0
 endif
+
+if !exists("g:easytree_legacy_mappings")
+    let g:easytree_legacy_mappings = 0
+endif
 " }}}
 
 " commands {{{
