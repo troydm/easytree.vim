@@ -600,27 +600,39 @@ function! s:FindFile()
     endif
 endfunction
 
-function! s:EnterPressed()
+function! s:ExpandCloseDir(fpath)
+    setlocal modifiable
+    if s:IsExpanded(getline('.'))
+        call s:UnexpandDir(a:fpath,line('.'))
+        let b:expanded[a:fpath] = 0
+    else
+        call s:ExpandDir(a:fpath,line('.'))
+        let b:expanded[a:fpath] = 1
+    endif
+    setlocal nomodifiable
+    call s:ExpandCleanup()
+endfunction
+
+function! s:SpacePressed()
     if line('.') > 2
-        let fpath = s:GetFullPath(line('.'))
         let isdir = s:IsDir(getline('.'))
         if isdir
-            setlocal modifiable
-            if s:IsExpanded(getline('.'))
-                call s:UnexpandDir(fpath,line('.'))
-                let b:expanded[fpath] = 0
-            else
-                call s:ExpandDir(fpath,line('.'))
-                let b:expanded[fpath] = 1
-            endif
-            setlocal nomodifiable
-            call s:ExpandCleanup()
+            let fpath = s:GetFullPath(line('.'))
+            call s:ExpandCloseDir(fpath)
+        endif
+    endif
+endfunction
+
+function! s:EnterPressed()
+    let fpath = s:GetFullPath(line('.'))
+    if line('.') > 2
+        let isdir = s:IsDir(getline('.'))
+        if isdir
+            call s:ExpandCloseDir(fpath)
         else
-            " Open file
             call s:OpenFile(fpath,'edit')
         endif
     elseif line('.') == 2
-        let fpath = s:GetFullPath(line('.'))
         let pos = getpos('.')
         call s:InitializeNewTree(fpath)
         call setpos('.',pos)
@@ -1044,6 +1056,7 @@ function! easytree#OpenTree(win, dir)
         nnoremap <silent> <buffer> v :call <SID>VerticlySplitOpen(line('.'))<CR>
         nnoremap <silent> <buffer> s :call <SID>SplitOpen(line('.'))<CR>
         nnoremap <silent> <buffer> t :call <SID>TabOpen(line('.'))<CR>
+        nnoremap <silent> <buffer> <Space> :call <SID>SpacePressed()<CR>
     endif
 
 

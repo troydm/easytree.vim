@@ -92,6 +92,7 @@ g:easytree_legacy_mappings   (Default: 1)
     added. To open a file in a new vertical split press |v| instead of |vs|.
     To open a file in a new horizontal split press |s| instead of |sp|.
     To open a file in a new tab press |t|.
+    You can expand/close directories with |<Space>| too.
 
 ============================================================================================
  2. USAGE                                                         *easytree.vim-usage*
