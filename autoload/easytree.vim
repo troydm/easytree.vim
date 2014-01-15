@@ -10,8 +10,8 @@
 " :help easytree
 
 let s:save_cpo = &cpo
-if !exists('g:easytree_expanded')
-    let g:easytree_expanded = {}
+if !exists('s:easytree_expanded')
+    let s:easytree_expanded = {}
 endif
 set cpo&vim
 
@@ -832,7 +832,7 @@ function! s:InitializeNewTree(dir)
     let b:ignore_dirs = g:easytree_ignore_dirs
     let b:ignore_find_result = g:easytree_ignore_find_result
     if !(g:easytree_auto_load_settings && s:LoadSetting(dir))
-        let b:expanded = g:easytree_expanded
+        let b:expanded = s:easytree_expanded
     endif
     call s:RefreshAll()
 endfunction
@@ -951,7 +951,7 @@ function! s:GetInfo(linen)
 endfunction
 
 function! s:CloseEasyTreeWindow()
-    let g:easytree_expanded = b:expanded
+    let s:easytree_expanded = b:expanded
     if match(b:location,'here') == 0
         exe ":b" . b:oldid
     else
