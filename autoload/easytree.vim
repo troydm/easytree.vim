@@ -984,17 +984,34 @@ endfunction
 " }}}
 
 " load/save settings functions {{{
+function! s:EnsureExists(path)
+    if !isdirectory(a:path)
+        call mkdir(a:path,'p')
+    endif
+endfunction
+
 function! s:SaveSetting()
+    let dir = s:GetFullPath(1)
+    let sf  = dir.'/'.g:easytree_settings_file
+    if exists('g:easytree_settings_dir')
+        let tmp = expand(g:easytree_settings_dir)
+        call s:EnsureExists(tmp.'/'.dir)
+        let sf = tmp.'/'.sf
+    endif
     call writefile(["let b:ignore_files = ".string(b:ignore_files),
                 \ "let b:ignore_dirs = ".string(b:ignore_dirs),
                 \ "let b:ignore_find_result = ".string(b:ignore_find_result),
                 \ "let b:showhidden = ".b:showhidden,
                 \ "let b:expanded = ".string(b:expanded)],
-                \ s:GetFullPath(1).'/'.g:easytree_settings_file)
+                \ sf)
 endfunction
 
 function! s:LoadSetting(dir)
     let sf = a:dir.'/'.g:easytree_settings_file
+    if exists('g:easytree_settings_dir')
+        let tmp = expand(g:easytree_settings_dir)
+        let sf  = tmp.'/'.sf
+    endif
     if filereadable(sf)
         for c in readfile(sf)
             exe c

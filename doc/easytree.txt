@@ -19,16 +19,16 @@ Help on using easytree.vim                                     *easytree.vim*
  1. INTRODUCTION                                                  *easytree.vim-intro*
 
 easytree.vim - is a simple tree file manager for vim.
-While being highly inspired by NERDTree it differs from it in it's approach to a file 
+While being highly inspired by NERDTree it differs from it in it's approach to a file
 management and takes a more traditional vim yank/paste file copy/paste/delete approach
 It's also more simpler in it's functionality and has much less features compared to other
 file managers. It's goal is to be as fast and as minimalistic as possible.
 Just the right tool for just the right task
 
-Platform: 
+Platform:
     only unix based operating systems are supported
 
-Requirements: 
+Requirements:
     vim 7.3 compiled with python support and atleast 569 patchset included
 
 ============================================================================================
@@ -77,17 +77,21 @@ g:easytree_auto_load_settings     (Default: 1)
 g:easytree_settings_file          (Default: '.easytree')
     This is the name of tree settings file that is saved relative to your tree directory
 
+                                                         *g:easytree_settings_dir*
+g:easytree_settings_dir           (Default: none)
+    If you set this variable, all the settings files will be saved under this directory instead of polluting your disk.
+
                                                          *g:easytree_hijack_netrw*
-g:easytree_hijack_netrw     (Default: 1)
+g:easytree_hijack_netrw           (Default: 1)
     if this option is enabled directories will be opened using easytree instead of |netrw|
 
                                                          *g:easytree_width_auto_fit*
-g:easytree_width_auto_fit   (Default: 0)
+g:easytree_width_auto_fit         (Default: 0)
     if this option is enabled width of easytree window will be automaticly
     resized if the longest line width will be greater than the easytree window width
 
                                                          *g:easytree_legacy_mappings
-g:easytree_legacy_mappings   (Default: 1)
+g:easytree_legacy_mappings        (Default: 1)
     if this option is disabled, some keymaps are modified, while others are
     added. To open a file in a new vertical split press |v| instead of |vs|.
     To open a file in a new horizontal split press |s| instead of |sp|.
@@ -119,26 +123,26 @@ g:easytree_legacy_mappings   (Default: 1)
         To go up in filesystem hierarchy move your cursor over the second line and press |<Enter>| or
         just press |u| without changing position of your cursor
         To use specified directory as a root for an easytree buffer move your cursor over the directory
-        line and press |C| to use it as root for easytree. 
+        line and press |C| to use it as root for easytree.
         Pressing |cd| will make that directory current working directory but won't change the root of easytree
         To jump to another directory press |J| and specify a full path to the directory you want to jump to
         To quickly go to your home directory just press |H|
         To refresh current expanded directory listing press |r| while having your line over that directory
         Pressing |R| will refresh whole easytree buffer
     File search:
-        Press |f| while having your cursor over some directory to search in and 
+        Press |f| while having your cursor over some directory to search in and
         specify a filename pattern you want to search for in that directory
         Press |n| and |N| to move your cursor over search results
         Pressing |F| instead of |f| will have last search pattern pretyped
     File management:
-        To create a new file/directory press |m| while having your cursor over/in directory were you want to 
+        To create a new file/directory press |m| while having your cursor over/in directory were you want to
         create a new file/directory. If name specified will have / as it's suffix, a directory will be created,
         otherwise it'll create a file. All specified parent directories will be automaticly created as needed
         To rename a file/directory move your cursor over the file/dir you want to rename and press |c|
         To copy the current file into the buffer, just move your cursor over the file/dir line and press |yy|
         or select that files/dirs in visual mode and press |y|. This will copy their filenames to yank register
         Now to see the yank register just press |P|. To paste files/dirs in yank register into a new location
-        just move your cursor over the directory you want to paste your files/dirs into and press |p|  
+        just move your cursor over the directory you want to paste your files/dirs into and press |p|
         Same way to delete file/dir just move your cursor over that file/dir press |dd|
         To delete multiple files/dirs just select them in visual mode and press |d|
     Tree settings management:
