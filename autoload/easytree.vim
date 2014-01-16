@@ -1021,7 +1021,9 @@ function! easytree#OpenTree(win, dir)
     endif
     nnoremap <silent> <buffer> <Enter> :call <SID>EnterPressed()<CR>
     nnoremap <silent> <buffer> e :call <SID>Open(line('.'))<CR>
+    nnoremap <silent> <buffer> v :call <SID>VerticlySplitOpen(line('.'))<CR>
     nnoremap <silent> <buffer> vs :call <SID>VerticlySplitOpen(line('.'))<CR>
+    nnoremap <silent> <buffer> s :call <SID>SplitOpen(line('.'))<CR>
     nnoremap <silent> <buffer> sp :call <SID>SplitOpen(line('.'))<CR>
     nnoremap <silent> <buffer> q :bd!<CR>
     nnoremap <silent> <buffer> o :call <SID>Expand(line('.')) \| call <SID>ExpandCleanup()<CR>

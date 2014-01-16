@@ -99,9 +99,9 @@ g:easytree_width_auto_fit   (Default: 0)
     Other files are just shown as they are named
     File open/edit:
         To edit a file move your cursor over the line were the file is and press |e| or |<Enter>|
-        To edit file in new vertical split window press |vs| instead
-        To edit file in new horizontal split window press |sp| instead
-        If you press |e|, |vs| or |sp| over a directory this directory will be edited instead
+        To edit file in new vertical split window press |v| or |vs| instead
+        To edit file in new horizontal split window press |s| or |sp| instead
+        If you press |e|, |v|, |vs|, |s| or |sp| over a directory this directory will be edited instead
     Directory open/close:
         To expand a directory move your cursor over the line with a specified directory
         and press |<Enter>| or |o|. Pressing |O| will expand all sub directories too
