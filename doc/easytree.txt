@@ -104,6 +104,7 @@ g:easytree_width_auto_fit   (Default: 0)
         To edit file in new tab window press |t| instead
         When file is directory it will open it in new *EasyTree* buffer instead
     Directory open/close:
+        To expand/close directory and close directory file is in use |<Space>|
         To expand a directory move your cursor over the line with a specified directory
         and press |<Enter>| or |o|. Pressing |O| will expand all sub directories too
         To close a directory move your cursor over expanded directory and press |<Enter>| or |x|

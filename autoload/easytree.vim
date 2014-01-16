@@ -627,6 +627,24 @@ function! s:EnterPressed()
     endif
 endfunction
 
+function! s:SpacePressed()
+    if line('.') > 2
+        let fpath = s:GetFullPath(line('.'))
+        let isdir = s:IsDir(getline('.'))
+        if isdir
+            call s:EnterPressed()
+        else
+            let dirline = s:GetDirLine(line('.'))
+            if dirline != 1
+                let pos = getpos('.')
+                let pos[1] = dirline
+                call setpos('.', pos)
+                call s:EnterPressed()
+            endif
+        endif
+    endif
+endfunction
+
 function! s:Expand(linen)
     if a:linen > 2
         let fpath = s:GetFullPath(a:linen)
@@ -1027,6 +1045,7 @@ function! easytree#OpenTree(win, dir)
         setlocal cursorline
     endif
     nnoremap <silent> <buffer> <Enter> :call <SID>EnterPressed()<CR>
+    nnoremap <silent> <buffer> <Space> :call <SID>SpacePressed()<CR>
     nnoremap <silent> <buffer> e :call <SID>Open(line('.'))<CR>
     nnoremap <silent> <buffer> v :call <SID>VerticlySplitOpen(line('.'))<CR>
     nnoremap <silent> <buffer> vs :call <SID>VerticlySplitOpen(line('.'))<CR>
