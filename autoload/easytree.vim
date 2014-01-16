@@ -697,6 +697,11 @@ function! s:Open(linen)
     call s:OpenFile(fpath,'edit')
 endfunction
 
+function! s:TabOpen(linen)
+    let fpath = s:GetFullPath(a:linen)
+    call s:OpenFile(fpath,'tab')
+endfunction
+
 function! s:SplitOpen(linen)
     let fpath = s:GetFullPath(a:linen)
     call s:OpenFile(fpath,'sp')
@@ -875,7 +880,9 @@ function! s:OpenEasyTreeFile(location,fpath,mode)
     endif
     stopinsert
     if a:mode == 'edit'
-        exe a:mode.' '.fpath
+        exe 'edit '.fpath
+    elseif a:mode == 'tab'
+        exe 'tabnew '.fpath
     elseif a:mode == 'sp'
         if a:location == 'here' || a:location == 'left' || a:location == 'right' || a:location == 'top'
             wincmd s
@@ -1025,6 +1032,7 @@ function! easytree#OpenTree(win, dir)
     nnoremap <silent> <buffer> vs :call <SID>VerticlySplitOpen(line('.'))<CR>
     nnoremap <silent> <buffer> s :call <SID>SplitOpen(line('.'))<CR>
     nnoremap <silent> <buffer> sp :call <SID>SplitOpen(line('.'))<CR>
+    nnoremap <silent> <buffer> t :call <SID>TabOpen(line('.'))<CR>
     nnoremap <silent> <buffer> q :bd!<CR>
     nnoremap <silent> <buffer> o :call <SID>Expand(line('.')) \| call <SID>ExpandCleanup()<CR>
     nnoremap <silent> <buffer> O :call <SID>ExpandAll(line('.')) \| call <SID>ExpandCleanup()<CR>
