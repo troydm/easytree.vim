@@ -17,4 +17,12 @@ usage
 
     :EasyTree
 
+maintainer
+----------
+Dmitry Geurkov (d.geurkov@gmail.com)
+
+contributors
+------------
+Matteo Cavalleri
+
 [NERDTree]: https://github.com/scrooloose/nerdtree
