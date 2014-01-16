@@ -79,7 +79,7 @@ g:easytree_settings_file          (Default: '.easytree')
 
                                                          *g:easytree_settings_dir*
 g:easytree_settings_dir           (Default: none)
-    If you set this variable, all the settings files will be saved under this directory instead of polluting your disk.
+    If you set this variable, all the settings files will be saved under this directory instead of being saved relative to your tree directory.
 
                                                          *g:easytree_hijack_netrw*
 g:easytree_hijack_netrw           (Default: 1)
