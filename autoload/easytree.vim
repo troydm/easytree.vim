@@ -954,6 +954,7 @@ function! s:GetInfo(linen)
 endfunction
 
 function! s:OpenEasyTreeWindow(location)
+    let prevbufnr = bufnr('%')
     let treeid = s:GetNewEasyTreeWindowId()
     let treename = fnameescape('easytree - '.treeid)
     let location = a:location
@@ -972,6 +973,15 @@ function! s:OpenEasyTreeWindow(location)
     endif
     let b:treeid = treeid
     let b:location = location
+    let b:prevbufnr = prevbufnr
+endfunction
+
+function! s:CloseEasyTreeWindow()
+    if b:location == 'here'
+        exe ':b'.b:prevbufnr
+    else
+        bd!
+    endif
 endfunction
 " }}}
 
@@ -1052,7 +1062,7 @@ function! easytree#OpenTree(win, dir)
     nnoremap <silent> <buffer> s :call <SID>SplitOpen(line('.'))<CR>
     nnoremap <silent> <buffer> sp :call <SID>SplitOpen(line('.'))<CR>
     nnoremap <silent> <buffer> t :call <SID>TabOpen(line('.'))<CR>
-    nnoremap <silent> <buffer> q :bd!<CR>
+    nnoremap <silent> <buffer> q :call <SID>CloseEasyTreeWindow()<CR>
     nnoremap <silent> <buffer> o :call <SID>Expand(line('.')) \| call <SID>ExpandCleanup()<CR>
     nnoremap <silent> <buffer> O :call <SID>ExpandAll(line('.')) \| call <SID>ExpandCleanup()<CR>
     nnoremap <silent> <buffer> x :call <SID>Unexpand(line('.'))<CR>
