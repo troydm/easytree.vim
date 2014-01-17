@@ -73,6 +73,11 @@ g:easytree_use_plus_and_minus     (Default: 0)
 g:easytree_auto_load_settings     (Default: 1)
     if this option is enabled your tree settings are automaticly loaded
 
+                                                         *g:easytree_auto_save_settings*
+g:easytree_auto_save_settings     (Default: 0)
+    if this option is enabled your tree settings are automaticly saved 
+    when *EasyTree* window is closed
+
                                                          *g:easytree_settings_file*
 g:easytree_settings_file          (Default: '<dir>/.easytree')
     This is the name of tree settings file that is saved relative to your tree directory

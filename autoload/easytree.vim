@@ -983,6 +983,12 @@ function! s:CloseEasyTreeWindow()
         bd!
     endif
 endfunction
+
+function! s:DestroyEasyTreeWindow()
+    if g:easytree_auto_save_settings
+        call s:SaveSetting()
+    endif
+endfunction
 " }}}
 
 " load/save settings functions {{{
@@ -1066,6 +1072,7 @@ function! easytree#OpenTree(win, dir)
     if g:easytree_highlight_cursor_line
         setlocal cursorline
     endif
+    au BufWipeout <buffer> silent! call <SID>DestroyEasyTreeWindow()
     nnoremap <silent> <buffer> <Enter> :call <SID>EnterPressed()<CR>
     nnoremap <silent> <buffer> <Space> :call <SID>SpacePressed()<CR>
     nnoremap <silent> <buffer> e :call <SID>Open(line('.'))<CR>

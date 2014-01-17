@@ -71,6 +71,10 @@ if !exists("g:easytree_auto_load_settings")
     let g:easytree_auto_load_settings = 1
 endif
 
+if !exists("g:easytree_auto_save_settings")
+    let g:easytree_auto_save_settings = 0
+endif
+
 if !exists("g:easytree_settings_file")
     let g:easytree_settings_file = '<dir>/.easytree'
 endif
