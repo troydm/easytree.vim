@@ -72,7 +72,7 @@ if !exists("g:easytree_auto_load_settings")
 endif
 
 if !exists("g:easytree_settings_file")
-    let g:easytree_settings_file = '.easytree'
+    let g:easytree_settings_file = '<dir>/.easytree'
 endif
 
 if !exists("g:easytree_hijack_netrw")
