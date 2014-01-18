@@ -51,6 +51,10 @@ if !exists("g:easytree_highlight_cursor_line")
     let g:easytree_highlight_cursor_line = 1
 endif
 
+if !exists("g:easytree_enable_vs_and_sp_mappings")
+    let g:easytree_enable_vs_and_sp_mappings = 0
+endif
+
 if !exists("g:easytree_ignore_dirs")
     let g:easytree_ignore_dirs = []
 endif

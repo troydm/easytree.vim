@@ -1076,10 +1076,13 @@ function! easytree#OpenTree(win, dir)
     nnoremap <silent> <buffer> <Enter> :call <SID>EnterPressed()<CR>
     nnoremap <silent> <buffer> <Space> :call <SID>SpacePressed()<CR>
     nnoremap <silent> <buffer> e :call <SID>Open(line('.'))<CR>
-    nnoremap <silent> <buffer> v :call <SID>VerticlySplitOpen(line('.'))<CR>
-    nnoremap <silent> <buffer> vs :call <SID>VerticlySplitOpen(line('.'))<CR>
-    nnoremap <silent> <buffer> s :call <SID>SplitOpen(line('.'))<CR>
-    nnoremap <silent> <buffer> sp :call <SID>SplitOpen(line('.'))<CR>
+    if g:easytree_enable_vs_and_sp_mappings
+        nnoremap <silent> <buffer> vs :call <SID>VerticlySplitOpen(line('.'))<CR>
+        nnoremap <silent> <buffer> sp :call <SID>SplitOpen(line('.'))<CR>
+    else
+        nnoremap <silent> <buffer> v :call <SID>VerticlySplitOpen(line('.'))<CR>
+        nnoremap <silent> <buffer> s :call <SID>SplitOpen(line('.'))<CR>
+    endif
     nnoremap <silent> <buffer> t :call <SID>TabOpen(line('.'))<CR>
     nnoremap <silent> <buffer> q :call <SID>CloseEasyTreeWindow()<CR>
     nnoremap <silent> <buffer> o :call <SID>Expand(line('.')) \| call <SID>ExpandCleanup()<CR>

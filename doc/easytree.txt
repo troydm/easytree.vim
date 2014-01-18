@@ -50,6 +50,10 @@ g:easytree_show_hidden_files     (Default: 0)
 g:easytree_highlight_cursor_line (Default: 1)
     Highlight current line in easytree buffer
 
+                                                         *g:easytree_enable_vs_and_sp_mappings*
+g:easytree_enable_vs_and_sp_mappings (Default: 0)
+    If enalbed use |vs| and |sp| mappings instead of |v| and |s|
+
                                                          *g:easytree_ignore_dirs*
 g:easytree_ignore_dirs            (Default: [])
     directory patterns present in the following list won't show up in easytree buffer
