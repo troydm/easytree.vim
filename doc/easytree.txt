@@ -159,7 +159,6 @@ g:easytree_width_auto_fit   (Default: 0)
         To hide some files in current tree according to comma seperated pattern list use |zf|
         To hide some dirs in current tree according to comma seperated pattern list use |zd|
         To hide find results in current tree according to comma seperated pattern list use |zs|
-        /dirs  and |S|
         To quickly access help just press |?|
         To close easytree window just press |q|
 
