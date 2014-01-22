@@ -30,7 +30,7 @@ import vim, os, random, sys
 easytree_path = vim.eval("expand('<sfile>:h')")
 if not easytree_path in sys.path:
     sys.path.insert(0, easytree_path)
-del easytree_path 
+del easytree_path
 import easytree
 EOF
 " }}}
@@ -123,7 +123,7 @@ function! s:GetLvl(line)
     let lvl = 0
     let lvls = '[▸▾+\- ] '
     while match(a:line, '^'.lvls) == 0
-        let lvl += 1        
+        let lvl += 1
         let lvls = '  '.lvls
     endwhile
     return lvl
@@ -284,7 +284,7 @@ function! s:ChangeDirTo(...)
     else
         let path = s:AskInputComplete('go to ',getline(1),'dir')
     endif
-    if !empty(path) 
+    if !empty(path)
         if pyeval("os.path.isdir(os.path.expanduser(vim.eval('path')))")
             call s:InitializeNewTree(path)
         else
@@ -343,7 +343,7 @@ endfunction
 
 function! s:EchoPasteBuffer()
     let files = s:GetPasteBuffer()
-    if len(files) > 0 
+    if len(files) > 0
         echo 'paste buffer:'
         for f in s:GetPasteBuffer()
             echo f
@@ -528,7 +528,7 @@ function! s:Find(linen, find)
         redraw
         if fpath != getline(1)
             let fpath = fpath[len(getline(1)):]
-            if len(fpath) > 0 && fpath[0] == '/' 
+            if len(fpath) > 0 && fpath[0] == '/'
                 let fpath = fpath[1:]
             endif
             if len(fpath) > 0
@@ -580,7 +580,7 @@ function! s:FindFile()
             if s:GetLvl(getline(i)) == lvl
                 let fpath = s:GetFullPath(i)
                 if lvl == len(findp)
-                    if fpath == findf 
+                    if fpath == findf
                         let pos = getpos('.')
                         let pos[1] = i
                         let pos[2] = 1
@@ -607,10 +607,10 @@ function! s:EnterPressed()
         if isdir
             setlocal modifiable
             if s:IsExpanded(getline('.'))
-                call s:UnexpandDir(fpath,line('.'))            
+                call s:UnexpandDir(fpath,line('.'))
                 let b:expanded[fpath] = 0
             else
-                call s:ExpandDir(fpath,line('.'))            
+                call s:ExpandDir(fpath,line('.'))
                 let b:expanded[fpath] = 1
             endif
             setlocal nomodifiable
@@ -652,7 +652,7 @@ function! s:Expand(linen)
         if isdir
             setlocal modifiable
             if !s:IsExpanded(getline(a:linen))
-                call s:ExpandDir(fpath,a:linen)            
+                call s:ExpandDir(fpath,a:linen)
                 let b:expanded[fpath] = 1
             endif
             setlocal nomodifiable
@@ -694,7 +694,7 @@ function! s:Unexpand(linen)
         if isdir
             setlocal modifiable
             if s:IsExpanded(getline(a:linen))
-                call s:UnexpandDir(fpath,a:linen)            
+                call s:UnexpandDir(fpath,a:linen)
                 let b:expanded[fpath] = 0
             endif
             setlocal nomodifiable
@@ -745,7 +745,7 @@ function! s:UnexpandDir(fpath,linen)
     let linen += 1
     let linee = linen
     while s:GetLvl(getline(linee)) > lvl
-        let linee += 1 
+        let linee += 1
     endwhile
     let linee -= 1
     if linee != linen
@@ -774,7 +774,7 @@ function! s:ExpandDir(fpath,linen)
         call setline(linen,substitute(getline(linen),'▸','▾',''))
     endif
     let lvl = s:GetLvl(getline(linen))
-    let lvls = repeat('  ',lvl) 
+    let lvls = repeat('  ',lvl)
     let treelist = pyeval("easytree.EasyTreeListDir(vim.eval('a:fpath'),".b:showhidden.")")
     let cascade = g:easytree_cascade_open_single_dir && len(treelist[1]) == 1 && len(treelist[2]) == 0
     for d in treelist[1]
@@ -830,7 +830,7 @@ function! s:InitializeNewTree(dir)
     normal! ggdG
     call setline(1,dir)
     setlocal nomodifiable
-    let b:showhidden = g:easytree_show_hidden_files 
+    let b:showhidden = g:easytree_show_hidden_files
     let b:ignore_files = g:easytree_ignore_files
     let b:ignore_dirs = g:easytree_ignore_dirs
     let b:ignore_find_result = g:easytree_ignore_find_result
@@ -881,12 +881,12 @@ function! s:OpenEasyTreeFile(location,fpath,mode)
     endif
     if !empty(&buftype) && a:mode == 'edit' && a:location != 'here' && !wincreated
         " find windows with file buffer
-        let wnrs = filter(range(1,winnr('$')),"empty(getbufvar(winbufnr(v:val),'&buftype'))") 
+        let wnrs = filter(range(1,winnr('$')),"empty(getbufvar(winbufnr(v:val),'&buftype'))")
         if len(wnrs) > 0
             let wnr = winnr()
             wincmd k
             if !(winnr() != wnr && index(wnrs,winnr()) != -1)
-                exe wnr.'wincmd w'                
+                exe wnr.'wincmd w'
                 wincmd j
                 if !(winnr() != wnr && index(wnrs,winnr()) != -1)
                     exe wnrs[0].'wincmd w'
@@ -1005,10 +1005,10 @@ endfunction
 function! s:SaveSetting()
     let sf = s:GetSettingFilePath(s:GetFullPath(1))
     call s:MakeDirectory(fnamemodify(sf,':h'))
-    call writefile(["let b:ignore_files = ".string(b:ignore_files), 
-                \ "let b:ignore_dirs = ".string(b:ignore_dirs), 
-                \ "let b:ignore_find_result = ".string(b:ignore_find_result), 
-                \ "let b:showhidden = ".b:showhidden, 
+    call writefile(["let b:ignore_files = ".string(b:ignore_files),
+                \ "let b:ignore_dirs = ".string(b:ignore_dirs),
+                \ "let b:ignore_find_result = ".string(b:ignore_find_result),
+                \ "let b:showhidden = ".b:showhidden,
                 \ "let b:expanded = ".string(b:expanded)],
                 \ sf)
 endfunction
@@ -1026,7 +1026,7 @@ endfunction
 
 function! s:LoadGlobalTreeSetting()
     if s:AskConfirmation('are you sure you want to load global settings?')
-        let b:showhidden = g:easytree_show_hidden_files 
+        let b:showhidden = g:easytree_show_hidden_files
         let b:ignore_files = g:easytree_ignore_files
         let b:ignore_dirs = g:easytree_ignore_dirs
         let b:ignore_find_result = g:easytree_ignore_find_result
