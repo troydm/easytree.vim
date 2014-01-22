@@ -80,13 +80,13 @@ g:easytree_auto_load_settings     (Default: 1)
                                                          *g:easytree_auto_save_settings*
 g:easytree_auto_save_settings     (Default: 0)
     if this option is enabled your tree settings are automaticly saved 
-    when *EasyTree* window is closed
+    when |EasyTree| window is closed
 
                                                          *g:easytree_settings_file*
 g:easytree_settings_file          (Default: '<dir>/.easytree')
     This is the name of tree settings file that is saved relative to your tree directory
     File name expands using *expand()* function so it supports all it's modifiers.
-    Additionaly *<dir>* is expanded to a currently opened *EasyTree* directory.
+    Additionaly *<dir>* is expanded to a currently opened |EasyTree| directory.
     For example to have centralized storage of all settings files you can set
     this setting to '~/.easytree/<dir>/.easytree'
 
@@ -115,7 +115,7 @@ g:easytree_width_auto_fit   (Default: 0)
         To edit file in new vertical split window press |v| or |vs| instead
         To edit file in new horizontal split window press |s| or |sp| instead
         To edit file in new tab window press |t| instead
-        When file is directory it will open it in new *EasyTree* buffer instead
+        When file is directory it will open it in new |EasyTree| buffer instead
     Directory open/close:
         To expand/close directory and close directory file is in use |<Space>|
         To expand a directory move your cursor over the line with a specified directory
