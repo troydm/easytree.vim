@@ -600,6 +600,15 @@ function! s:FindFile()
     endif
 endfunction
 
+function! s:PrintFullPath()
+    if line('.') > 2
+        let root  = s:GetFullPath(1)
+        let fpath = s:GetFullPath(line('.'))
+        let rpath = substitute(fpath, root . '/', '', '')
+        echo rpath
+    endif
+endfunction
+
 function! s:EnterPressed()
     if line('.') > 2
         let fpath = s:GetFullPath(line('.'))
@@ -1073,6 +1082,7 @@ function! easytree#OpenTree(win, dir)
         setlocal cursorline
     endif
     au BufWipeout <buffer> silent! call <SID>DestroyEasyTreeWindow()
+    nnoremap <silent> <buffer> <C-g> :call <SID>PrintFullPath()<CR>
     nnoremap <silent> <buffer> <Enter> :call <SID>EnterPressed()<CR>
     nnoremap <silent> <buffer> <Space> :call <SID>SpacePressed()<CR>
     nnoremap <silent> <buffer> e :call <SID>Open(line('.'))<CR>
