@@ -606,7 +606,7 @@ function! s:PrintFilePath()
     endif
 
     let fpath = s:GetFullPath(line('.'))
-    if v:count1 > 1
+    if v:count > 0
         echo fpath
     else
         let root  = s:GetFullPath(1)
