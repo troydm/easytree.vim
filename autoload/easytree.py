@@ -98,6 +98,24 @@ def EasyTreeRenameFile():
     else:
         vim.command("redraw | echom 'file "+(dpath+fname)+" doesn't exists'")
 
+def EasyTreeCopyFile(src, dst, overwrite):
+    if os.path.isdir(src):
+        if overwrite:
+            vim.command("echom 'overwriting directory: "+dst+"'")
+            shutil.rmtree(dst)
+        EasyTreeCopyFileTree(src,dst)
+    else:
+        shutil.copyfile(src,dst)
+
+def EasyTreeCopyFileTree(src, dst):
+    rdirs = [dst]
+    rfiles = []
+    for root, dirs, files in os.walk(src):
+        rdirs.extend(map(lambda d: dst+root[len(src):]+os.path.sep+d, dirs))
+        rfiles.extend(map(lambda f: (root+os.path.sep+f,dst+root[len(src):]+os.path.sep+f), files))
+    map(os.makedirs,rdirs)
+    map(lambda (s,d): shutil.copyfile(s,d),rfiles)
+
 def EasyTreeCopyFiles():
     dpath = vim.eval('fpath')+os.sep
     files = vim.eval('files')
@@ -119,7 +137,6 @@ def EasyTreeCopyFiles():
                 if int(vim.eval("<SID>AskConfirmationNoRedraw('would you like to overwrite it?')")) == 1:
                     copy = True
                     overwrite = True
-                    vim.command("echom 'overwriting file "+dst+"'")
                 elif int(vim.eval("<SID>AskConfirmationNoRedraw('would you like to paste it as another file?')")) == 1:
                     while True:
                         newbase = vim.eval("<SID>AskInputNoRedraw('"+dpath+"','"+base+"')")
@@ -130,17 +147,15 @@ def EasyTreeCopyFiles():
                             dst = dpath+newbase
                             vim.command("echom 'saving file as "+dst+"'")
                             break
-            if copy and f != dst:
-                try:
-                    if os.path.isdir(f):
-                        if overwrite:
-                            shutil.rmtree(dst)
-                        shutil.copytree(f,dst)
-                    else:
-                        shutil.copyfile(f,dst)
-                    i += 1
-                except OSError, e:
-                    print str(repr(e))
+            if copy:
+                if f != dst:
+                    try:
+                        EasyTreeCopyFile(f,dst,overwrite)
+                        i += 1
+                    except OSError, e:
+                        print str(repr(e))
+                else:
+                    vim.command("echom 'can''t copy from same source to same destination'")
         else:
             vim.command("echom '"+f+" doesn't exists'")
     if i == 1:
