@@ -819,7 +819,7 @@ function! s:InitializeTree(dir)
     let b:find = ''
     let b:findresult = []
     let treelist = pyeval("easytree.EasyTreeListDir(vim.eval('a:dir'),".b:showhidden.")")
-    silent! normal! ggdGG
+    silent! normal! gg"_dGG
     call setline(1, treelist[0])
     call append(1, '  .. (up a dir)')
     for d in treelist[1]
@@ -842,7 +842,7 @@ function! s:InitializeNewTree(dir)
         let dir = dir[:-2]
     endif
     setlocal modifiable
-    normal! ggdG
+    normal! gg"_dG
     call setline(1,dir)
     setlocal nomodifiable
     let b:showhidden = g:easytree_show_hidden_files
