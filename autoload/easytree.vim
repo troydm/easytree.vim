@@ -1080,7 +1080,10 @@ function! easytree#OpenTree(win, dir)
         return
     endif
     call s:OpenEasyTreeWindow(a:win)
-    setlocal filetype=easytree buftype=nofile bufhidden=wipe nobuflisted noswapfile nowrap nonumber winfixwidth
+    setlocal filetype=easytree buftype=nofile bufhidden=wipe nobuflisted noswapfile nowrap nonumber
+    if a:win !~ "edit here"
+        setlocal winfixwidth
+    endif
     if g:easytree_show_line_numbers
         setlocal number
     endif
