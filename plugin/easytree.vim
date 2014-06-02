@@ -90,17 +90,26 @@ endif
 if !exists("g:easytree_width_auto_fit")
     let g:easytree_width_auto_fit = 0
 endif
+
+if !exists("g:easytree_win")
+    let g:easytree_win = 'left'
+endif
+
+if !exists("g:easytree_toggle_win")
+    let g:easytree_toggle_win = 'left'
+endif
 " }}}
 
 " commands {{{
-command! -nargs=? -complete=dir EasyTree :EasyTreeLeft <args>
+command! -nargs=? -complete=dir EasyTree call easytree#OpenTree(g:easytree_win,<q-args>)
+command! -nargs=? -complete=dir EasyTreeToggle call easytree#ToggleTree(g:easytree_toggle_win,<q-args>)
 command! -nargs=? -complete=dir EasyTreeHere call easytree#OpenTree('edit here',<q-args>)
 command! -nargs=? -complete=dir EasyTreeLeft call easytree#OpenTree('left',<q-args>)
 command! -nargs=? -complete=dir EasyTreeRight call easytree#OpenTree('right',<q-args>)
 command! -nargs=? -complete=dir EasyTreeTop call easytree#OpenTree('top',<q-args>)
 command! -nargs=? -complete=dir EasyTreeBottom call easytree#OpenTree('bottom',<q-args>)
-command! -nargs=? -complete=dir EasyTreeTopDouble call easytree#OpenTree('top',<q-args>) | wincmd v | wincmd l | call easytree#OpenTree('edit top',<q-args>) | wincmd h
-command! -nargs=? -complete=dir EasyTreeBottomDouble call easytree#OpenTree('bottom',<q-args>) | wincmd v | wincmd l | call easytree#OpenTree('edit bottom',<q-args>) | wincmd h
+command! -nargs=? -complete=dir EasyTreeTopDouble call easytree#OpenTree('top double',<q-args>)
+command! -nargs=? -complete=dir EasyTreeBottomDouble call easytree#OpenTree('bottom double',<q-args>)
 " }}}
 
 " netrw hijacking related functions {{{

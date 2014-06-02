@@ -1069,7 +1069,27 @@ endfunction
 " }}}
 
 " global functions {{{
+function! easytree#ToggleTree(win, dir)
+    let bnrlist = filter(range(1,bufnr("$")), "bufexists(v:val) && getbufvar(v:val,'&filetype') == 'easytree'")
+    if len(bnrlist) == 0
+        call easytree#OpenTree(a:win, a:dir)
+    else
+        for bnr in bnrlist
+            exe 'bd!'.bnr
+        endfor
+    endif
+endfunction
+
 function! easytree#OpenTree(win, dir)
+    if a:win == 'top double' || a:win == 'bottom double'
+        let win = split(a:win, ' ')[0]
+        call easytree#OpenTree(win,a:dir) 
+        wincmd v 
+        wincmd l
+        call easytree#OpenTree('edit '.win,a:dir) 
+        wincmd h
+        return
+    endif
     let dir = a:dir
     if empty(dir)
         let dir = getcwd()

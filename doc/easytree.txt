@@ -34,6 +34,16 @@ Requirements:
 ============================================================================================
  2. CONFIGURATION                                        *easytree.vim-configuration*
 
+                                                         *g:easytree_win*
+g:easytree_win     (Default: 'left')
+    |EasyTree| window. Can be 'left', 'right', 'top', 'bottom', 'top double',
+    'bottom double' and 'edit here'
+
+                                                         *g:easytree_toggle_win*
+g:easytree_toggle_win     (Default: 'left')
+    |EasyTreeToggle| window. Can be 'left', 'right', 'top', 'bottom', 'top double',
+    'bottom double' and 'edit here'
+
                                                          *g:easytree_cascade_open_single_dir*
 g:easytree_cascade_open_single_dir     (Default: 1)
     Cascade expands all subsequent single directories when expanding directory
@@ -104,7 +114,7 @@ g:easytree_width_auto_fit   (Default: 0)
 
                                                                   *EasyTree*
 :EasyTree [directory path]
-    Opens a new window on the left side with specified directory in easytree buffer
+    Opens a new window on the |g:easytree_win| side with specified directory in easytree buffer
     If directory is not specified uses the current working directory as root
     The first line of buffer contains a full path of an opened directory
     Second line contains .. symbol that is used to go up in filesystem hierarchy
@@ -168,6 +178,10 @@ g:easytree_width_auto_fit   (Default: 0)
                                                                   *EasyTreeHere*
 :EasyTreeHere [directory path]
     Same as |EasyTree| only opens easy tree buffer in current window
+
+                                                                  *EasyTreeToggle*
+:EasyTreeToggle [directory path]
+    Same as |EasyTree| only toggle opens easy tree buffer in |g:easytree_toggle_win| window
 
                                                                   *EasyTreeLeft*
 :EasyTreeLeft [directory path]
