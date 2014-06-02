@@ -1077,7 +1077,11 @@ function! easytree#ToggleTree(win, dir)
             call easytree#OpenTree(a:win, a:dir)
         endif
     else
-        let bnrlist = filter(range(1,bufnr("$")), "bufexists(v:val) && getbufvar(v:val,'&filetype') == 'easytree' && getbufvar(v:val,'location') == '".a:win."'")
+        let win = a:win
+        if win =~ 'double'
+            let win = split(win, ' ')[0]
+        endif
+        let bnrlist = filter(range(1,bufnr("$")), "bufexists(v:val) && getbufvar(v:val,'&filetype') == 'easytree' && getbufvar(v:val,'location') == '".win."'")
         if len(bnrlist) == 0
             call easytree#OpenTree(a:win, a:dir)
         else
