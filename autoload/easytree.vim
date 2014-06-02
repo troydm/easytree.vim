@@ -1070,13 +1070,24 @@ endfunction
 
 " global functions {{{
 function! easytree#ToggleTree(win, dir)
-    let bnrlist = filter(range(1,bufnr("$")), "bufexists(v:val) && getbufvar(v:val,'&filetype') == 'easytree'")
-    if len(bnrlist) == 0
-        call easytree#OpenTree(a:win, a:dir)
+    if a:win == 'edit here'
+        if &filetype == 'easytree'
+            edit #
+        else
+            call easytree#OpenTree(a:win, a:dir)
+        endif
     else
-        for bnr in bnrlist
-            exe 'bd!'.bnr
-        endfor
+        let bnrlist = filter(range(1,bufnr("$")), "bufexists(v:val) && getbufvar(v:val,'&filetype') == 'easytree' && getbufvar(v:val,'location') == '".a:win."'")
+        if len(bnrlist) == 0
+            call easytree#OpenTree(a:win, a:dir)
+        else
+            let wn = winnr()
+            for bnr in bnrlist
+                exe bufwinnr(bnr).'wincmd w'
+                wincmd q
+            endfor
+            silent! exe wn.'wincmd w'
+        endif
     endif
 endfunction
 
