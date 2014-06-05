@@ -2,7 +2,7 @@
 " Maintainer: Dmitry "troydm" Geurkov <d.geurkov@gmail.com>
 " Version: 0.2.1
 " Description: easytree.vim is a simple tree file manager
-" Last Change: 10 January, 2013
+" Last Change: 3 June, 2014
 " License: Vim License (see :help license)
 " Website: https://github.com/troydm/easytree.vim
 "
@@ -34,6 +34,13 @@ del easytree_path
 import easytree
 EOF
 " }}}
+
+let s:easytree_on_windows = pyeval('easytree.easytree_on_windows')
+if s:easytree_on_windows
+    let s:easytree_path_sep = '\'
+else
+    let s:easytree_path_sep = '/'
+endif
 
 " functions {{{
 " input helpers {{{
@@ -143,7 +150,7 @@ function! s:GetFullPath(linen)
     if a:linen == 2
         let dirp = getline(1)
         if dirp != '/'
-            let dirp = pyeval("os.path.abspath(vim.eval('dirp')+'/..')")
+            let dirp = pyeval("os.path.abspath(vim.eval('dirp')+'".s:easytree_path_sep."..')")
         endif
         return dirp
     elseif a:linen == 1
@@ -156,7 +163,7 @@ function! s:GetFullPath(linen)
     let lvl = s:GetLvl(line)
     let lvln = a:linen
     while lvl > 0
-        let fname = '/'.s:GetFName(getline(lvln)).fname
+        let fname = s:easytree_path_sep.s:GetFName(getline(lvln)).fname
         let lvl -= 1
         if lvl > 0
             while s:GetLvl(getline(lvln)) != lvl
@@ -167,9 +174,13 @@ function! s:GetFullPath(linen)
     if dirp == '/'
         return fname
     else
+        if s:easytree_on_windows && len(dirp) == 3
+            let dirp = dirp[:1]
+        endif
         return dirp.fname
     endif
 endfunction
+
 function! s:DirName(path)
     let path = a:path
     return pyeval("os.path.dirname(vim.eval('path'))")
@@ -413,7 +424,7 @@ function! s:RemoveFiles() range
 endfunction
 
 function! s:CreateFile(linen)
-    let fpath = s:GetFullPathDir(a:linen).'/'
+    let fpath = s:GetFullPathDir(a:linen).s:easytree_path_sep
     let path = s:AskInput('create '.fpath,'')
     if !empty(path)
         let path = fpath.path
@@ -424,7 +435,7 @@ endfunction
 
 function! s:RenameFile(linen)
     let fpath = s:GetFullPath(a:linen)
-    let dpath = s:DirName(fpath).'/'
+    let dpath = s:DirName(fpath).s:easytree_path_sep
     let fname = s:FileName(fpath)
     let fnameto = s:AskInput('rename '.dpath,fname)
     if !empty(fnameto)
@@ -528,11 +539,11 @@ function! s:Find(linen, find)
         redraw
         if fpath != getline(1)
             let fpath = fpath[len(getline(1)):]
-            if len(fpath) > 0 && fpath[0] == '/'
+            if len(fpath) > 0 && fpath[0] == s:easytree_path_sep
                 let fpath = fpath[1:]
             endif
             if len(fpath) > 0
-                let b:findresult = map(b:findresult,"fpath.'/'.v:val")
+                let b:findresult = map(b:findresult,"fpath.'".s:easytree_path_sep."'.v:val")
             endif
         endif
         if !empty(b:findresult)
@@ -572,8 +583,8 @@ endfunction
 function! s:FindFile()
     if line('$') > 2
         let find = b:findresult[b:findindex]
-        let findf = getline(1).'/'.find
-        let findp = split(find,'/')
+        let findf = getline(1).s:easytree_path_sep.find
+        let findp = split(find,s:easytree_path_sep)
         let lvl = 1
         let i = 3
         while line('$') >= i
@@ -588,7 +599,7 @@ function! s:FindFile()
                         return
                     endif
                 else
-                    let findlvlf = getline(1).'/'.join(findp[:(lvl-1)],'/')
+                    let findlvlf = getline(1).s:easytree_path_sep.join(findp[:(lvl-1)],s:easytree_path_sep)
                     if fpath == findlvlf
                         call s:Expand(i)
                         let lvl += 1
@@ -610,7 +621,10 @@ function! s:PrintFilePath()
         echo fpath
     else
         let root  = s:GetFullPath(1)
-        let rpath = substitute(fpath, root . '/', '', '')
+        let rpath = fpath[len(root):]
+        if rpath[0] == s:easytree_path_sep
+            let rpath = rpath[1:]
+        endif
         echo rpath
     endif
 endfunction
@@ -719,7 +733,7 @@ endfunction
 
 function! s:UnexpandAll(linen)
     if a:linen > 2
-        let fpath = s:GetFullPath(a:linen).'/'
+        let fpath = s:GetFullPath(a:linen).s:easytree_path_sep
         call s:Unexpand(a:linen)
         let b:expanded = filter(b:expanded,"!(v:key =~ '".fpath."')")
     endif
@@ -838,8 +852,11 @@ endfunction
 
 function! s:InitializeNewTree(dir)
     let dir = a:dir
-    if dir != '/' && dir[len(dir)-1] == '/'
+    if dir != '/' && dir[len(dir)-1] == s:easytree_path_sep
         let dir = dir[:-2]
+        if s:easytree_on_windows && dir[len(dir)-1] == ':'
+            let dir = dir.s:easytree_path_sep
+        endif
     endif
     setlocal modifiable
     normal! gg"_dG
@@ -950,13 +967,13 @@ endfunction
 function! s:GetInfo(linen)
     let fpath = s:GetFullPath(a:linen)
     let info = pyeval('easytree.EasyTreeGetInfo()')
-    echo 'name: '.info[0].'  owner: '.info[1].':'.info[2].'  size: '.info[3].'  mode: '.info[4].'  last modified: '.info[5]
+    echo 'name: '.info[0].'  owner: '.info[1].(info[2] == '' ? '' : ':'.info[2]).'  size: '.info[3].'  mode: '.info[4].'  last modified: '.info[5]
     if pyeval('easytree.easytree_dirsize_calculator != None')
         while 1
             sleep 1
             let info[3] = pyeval("easytree.EasyTreeGetSize(easytree.easytree_dirsize_calculator_curr_size)+(('.'*random.randint(1,3)).ljust(3))")
             redraw
-            echo 'name: '.info[0].'  owner: '.info[1].':'.info[2].'  size: '.info[3].'  mode: '.info[4].'  last modified: '.info[5]
+            echo 'name: '.info[0].'  owner: '.info[1].(info[2] == '' ? '' : ':'.info[2]).'  size: '.info[3].'  mode: '.info[4].'  last modified: '.info[5]
             if !pyeval('easytree.easytree_dirsize_calculator.isAlive()')
                 let info[3] = pyeval("easytree.EasyTreeGetSize(easytree.easytree_dirsize_calculator_curr_size)")
                 python easytree.easytree_dirsize_calculator = None
@@ -965,7 +982,7 @@ function! s:GetInfo(linen)
         endwhile
     endif
     redraw
-    echo 'name: '.info[0].'  owner: '.info[1].':'.info[2].'  size: '.info[3].'  mode: '.info[4].'  last modified: '.info[5]
+    echo 'name: '.info[0].'  owner: '.info[1].(info[2] == '' ? '' : ':'.info[2]).'  size: '.info[3].'  mode: '.info[4].'  last modified: '.info[5]
 endfunction
 
 function! s:OpenEasyTreeWindow(location)

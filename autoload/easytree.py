@@ -2,11 +2,16 @@
 # Maintainer: Dmitry "troydm" Geurkov <d.geurkov@gmail.com>
 # Version: 0.2.1
 # Description: easytree.vim is a simple tree file manager
-# Last Change: 10 January, 2013
+# Last Change: 3 June, 2014
 # License: Vim License (see :help license)
 # Website: https://github.com/troydm/easytree.vim
 
-import vim,random,os,grp,pwd,time,stat,sys,shutil,fnmatch,threading
+import vim,random,os,time,stat,sys,shutil,fnmatch,threading
+
+easytree_on_windows = os.name == 'nt'
+
+if not easytree_on_windows:
+    import grp,pwd
 
 easytree_dirsize_calculator = None
 easytree_dirsize_calculator_cur_size = 0
@@ -68,6 +73,7 @@ def EasyTreeListDir(dir,showhidden):
         dirs = sorted(dirs)
         files = sorted(files)
         return [root, dirs, files]
+    return [dir,[],[]]
 
 def EasyTreeCreateFile():
     path = vim.eval('path')
@@ -245,13 +251,33 @@ def EasyTreeGetDirSize(dir):
     return total
 
 def EasyTreeGetInfo():
-    global easytree_dirsize_calculator
+    global easytree_dirsize_calculator, easytree_on_windows
     path = vim.eval('fpath')
     if os.path.exists(path):
         st = os.stat(path)
         name = os.path.basename(path)
-        user = pwd.getpwuid(st.st_uid).pw_name
-        group = grp.getgrgid(st.st_gid).gr_name
+        if easytree_on_windows:
+            p = os.popen('dir /q /a "'+path+'"')
+            user = p.read().split("\n")[5]
+            p.close()
+            if '>' in user:
+                user = user[user.index('>')+1:]
+                if user[-1] == '.':
+                    user = user[:-1]
+                user = user.strip()
+            elif 'AM' in user:
+                user = user[user.index('AM')+2:]
+                user = user.strip().lstrip("0123456789,.").strip()
+            elif 'PM' in user:
+                user = user[user.index('PM')+2:]
+                user = user.strip().lstrip("0123456789,.").strip()
+            if name in user:
+                user = user[:user.rindex(name)]
+            user = user.strip()
+            group = ''
+        else:
+            user = pwd.getpwuid(st.st_uid).pw_name
+            group = grp.getgrgid(st.st_gid).gr_name
         if stat.S_ISDIR(st.st_mode):
             size = 0
             if easytree_dirsize_calculator != None:
