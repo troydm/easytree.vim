@@ -307,7 +307,7 @@ endfunction
 
 function! s:ChangeCwdDir(linen)
     let fpath = s:GetFullPathDir(a:linen)
-    exe 'cd '.fpath
+    exe 'cd '.substitute(fpath,' ','\\ ','g')
     echo 'cwd: '.fpath
 endfunction
 
