@@ -1132,7 +1132,7 @@ function! easytree#OpenTree(win, dir)
         return
     endif
     call s:OpenEasyTreeWindow(a:win)
-    setlocal filetype=easytree buftype=nofile bufhidden=wipe nobuflisted noswapfile nowrap nonumber
+    setlocal filetype=easytree buftype=nofile bufhidden=wipe nolist nobuflisted noswapfile nowrap nonumber
     if a:win !~ "edit here"
         setlocal winfixwidth
     endif
