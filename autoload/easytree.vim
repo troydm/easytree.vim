@@ -1133,11 +1133,17 @@ function! easytree#OpenTree(win, dir)
     endif
     call s:OpenEasyTreeWindow(a:win)
     setlocal filetype=easytree buftype=nofile bufhidden=wipe nolist nobuflisted noswapfile nowrap nonumber
+    if exists('+relativenumber')
+        setlocal norelativenumber
+    endif
     if a:win !~ "edit here"
         setlocal winfixwidth
     endif
     if g:easytree_show_line_numbers
         setlocal number
+    endif
+    if g:easytree_show_relative_line_numbers
+        setlocal relativenumber
     endif
     if g:easytree_highlight_cursor_line
         setlocal cursorline
