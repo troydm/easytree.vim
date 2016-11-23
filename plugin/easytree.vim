@@ -43,6 +43,10 @@ if !exists("g:easytree_show_line_numbers")
     let g:easytree_show_line_numbers = 0
 endif
 
+if !exists("g:easytree_show_relative_line_numbers")
+    let g:easytree_show_relative_line_numbers = 0
+endif
+
 if !exists("g:easytree_show_hidden_files")
     let g:easytree_show_hidden_files = 0
 endif

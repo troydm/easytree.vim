@@ -51,6 +51,11 @@ g:easytree_cascade_open_single_dir     (Default: 1)
                                                          *g:easytree_show_line_numbers*
 g:easytree_show_line_numbers     (Default: 0)
     Show line numbers in easytree buffer
+
+                                                         *g:easytree_show_relative_line_numbers*
+g:easytree_show_relative_line_numbers     (Default: 0)
+    Show relative line numbers in easytree buffer
+
                                                          *g:easytree_show_hidden_files*
 g:easytree_show_hidden_files     (Default: 0)
     Show hidden files when opening new easytree buffer
