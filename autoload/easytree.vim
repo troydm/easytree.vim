@@ -533,6 +533,7 @@ function! s:Find(linen, find)
     let fpath = s:GetFullPathDir(linen)
     let find = s:AskInputComplete('search in '.fpath.' for ',a:find,'file')
     if !empty(find)
+        let @/ = ''
         let b:find = find
         echo 'searching for '.find
         exe "let b:findresult = pyeval(\"easytree.EasyTreeFind(vim.eval('find'),vim.eval('fpath'),".b:showhidden.")\")"
@@ -557,6 +558,10 @@ function! s:Find(linen, find)
 endfunction
 
 function! s:FindNext()
+    if !empty(@/)
+        normal! n
+        return
+    end
     if empty(b:findresult)
         echo 'no files found'
         return
@@ -569,6 +574,10 @@ function! s:FindNext()
 endfunction
 
 function! s:FindBackward()
+    if !empty(@/)
+        normal! N
+        return
+    end
     if empty(b:findresult)
         echo 'no files found'
         return
