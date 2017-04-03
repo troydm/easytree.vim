@@ -352,6 +352,23 @@ function! s:CopyFilesRange() range
     endif
 endfunction
 
+function! s:MoveFiles(linen)
+    if s:AskConfirmation('are you sure you want to move the files here?')
+        let fpath = s:GetFullPath(a:linen)
+        let files = s:GetPasteBuffer()
+
+        python easytree.EasyTreeCopyFiles()
+        call s:Refresh(a:linen)
+
+        let messages = pyeval('easytree.EasyTreeRemoveFiles()')
+        call s:Refresh(s:GetParentLvlLinen(a:linen))
+
+        for m in messages
+            echom m
+        endfor
+    endif
+endfunction
+
 function! s:EchoPasteBuffer()
     let files = s:GetPasteBuffer()
     if len(files) > 0
@@ -1186,6 +1203,7 @@ function! easytree#OpenTree(win, dir)
     nnoremap <silent> <buffer> C :call <SID>ChangeDir(line('.'))<CR>
     nnoremap <silent> <buffer> c :call <SID>RenameFile(line('.'))<CR>
     nnoremap <silent> <buffer> cd :call <SID>ChangeCwdDir(line('.'))<CR>
+    nnoremap <silent> <buffer> <m-m> :call <SID>MoveFiles(line('.'))<CR>
     nnoremap <silent> <buffer> m :call <SID>CreateFile(line('.'))<CR>
     nnoremap <silent> <buffer> r :call <SID>Refresh(line('.'))<CR>
     nnoremap <silent> <buffer> R :call <SID>RefreshAll()<CR>
