@@ -196,6 +196,10 @@ function! s:GetPasteBuffer()
     return filter(files,'filereadable(v:val) || isdirectory(v:val)')
 endfunction
 
+function! s:SetPasteBuffer(files)
+    call setreg(v:register,join(a:files,"\n"))
+endfunction
+
 function! s:FindBufnrByFilename(filename)
     for bnr in filter(range(1,bufnr('$')),"buflisted(v:val) && empty(getbufvar(v:val,'&buftype'))")
         if expand('#'.bnr.':p') == a:filename
@@ -353,19 +357,45 @@ function! s:CopyFilesRange() range
 endfunction
 
 function! s:MoveFiles(linen)
+    echo 'paste buffer:'
+    for f in s:GetPasteBuffer()
+        echo f
+    endfor
     if s:AskConfirmation('are you sure you want to move the files here?')
         let fpath = s:GetFullPath(a:linen)
         let files = s:GetPasteBuffer()
 
-        python easytree.EasyTreeCopyFiles()
+        let error = pyeval('easytree.EasyTreeCopyFiles()')
+        if type(error) == 1 && error == 'error'
+            return
+        endif
         call s:Refresh(a:linen)
+        if len(error) > 0
+            for f in error
+                let files = filter(files,'v:val != "'+f+'"')
+            endfor
+            call s:SetPasteBuffer(files)
+            let files = s:GetPasteBuffer()
+        endif
 
-        let messages = pyeval('easytree.EasyTreeRemoveFiles()')
+        call pyeval('easytree.EasyTreeRemoveFiles()')
         call s:Refresh(s:GetParentLvlLinen(a:linen))
-
-        for m in messages
-            echom m
-        endfor
+        if len(files) == 0 && len(error) == 0
+            echom 'No files were moved'
+            return
+        endif
+        if len(files) > 0
+            echom 'Following files were moved:'
+            for f in files
+                echom f
+            endfor
+        endif
+        if len(error) > 0
+            echom 'Following files couldn''t be moved:'
+            for f in error
+                echom f
+            endfor
+        endif
     endif
 endfunction
 
@@ -1203,7 +1233,8 @@ function! easytree#OpenTree(win, dir)
     nnoremap <silent> <buffer> C :call <SID>ChangeDir(line('.'))<CR>
     nnoremap <silent> <buffer> c :call <SID>RenameFile(line('.'))<CR>
     nnoremap <silent> <buffer> cd :call <SID>ChangeCwdDir(line('.'))<CR>
-    nnoremap <silent> <buffer> <m-m> :call <SID>MoveFiles(line('.'))<CR>
+    nnoremap <silent> <buffer> <m-p> :call <SID>MoveFiles(line('.'))<CR>
+    nnoremap <silent> <buffer> <esc>p :call <SID>MoveFiles(line('.'))<CR>
     nnoremap <silent> <buffer> a :call <SID>CreateFile(line('.'))<CR>
     nnoremap <silent> <buffer> m :call <SID>CreateFile(line('.'))<CR>
     nnoremap <silent> <buffer> r :call <SID>Refresh(line('.'))<CR>

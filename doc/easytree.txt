@@ -164,7 +164,7 @@ g:easytree_width_auto_fit   (Default: 0)
         Same way to delete file/dir just move your cursor over that file/dir press |dd|
         To delete multiple files/dirs just select them in visual mode and press |d|
         To move files/dirs copy them via yy/y. Then move your cursor over the
-        directory you want to put them in and press <m-m> (Alt + m).
+        directory you want to put them in and press <m-p> (Alt + p).
     Tree settings management:
         To save tree settings press |K|
         To load tree settings press |L|

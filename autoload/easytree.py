@@ -130,6 +130,7 @@ def EasyTreeCopyFiles():
         vim.command("redraw | echom 'copying 1 file, please wait...'")
     else:
         vim.command("redraw | echom 'copying "+str(len(files))+" files, please wait...'")
+    files_not_copied = []
     for f in files:
         base = os.path.basename(f)
         dst = dpath+base
@@ -160,14 +161,18 @@ def EasyTreeCopyFiles():
                         i += 1
                     except OSError, e:
                         print str(repr(e))
+                        return "error"
                 else:
                     vim.command("echom 'can''t copy from same source to same destination'")
+            else:
+                files_not_copied.append(f)
         else:
             vim.command("echom '"+f+" doesn't exists'")
     if i == 1:
         vim.command("echom '1 file copied'")
     else:
         vim.command("echom '"+str(i)+" files copied'")
+    return files_not_copied
 
 def EasyTreeRemoveFiles():
     files = vim.eval('files')
