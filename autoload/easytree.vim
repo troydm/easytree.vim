@@ -1204,6 +1204,7 @@ function! easytree#OpenTree(win, dir)
     nnoremap <silent> <buffer> c :call <SID>RenameFile(line('.'))<CR>
     nnoremap <silent> <buffer> cd :call <SID>ChangeCwdDir(line('.'))<CR>
     nnoremap <silent> <buffer> <m-m> :call <SID>MoveFiles(line('.'))<CR>
+    nnoremap <silent> <buffer> a :call <SID>CreateFile(line('.'))<CR>
     nnoremap <silent> <buffer> m :call <SID>CreateFile(line('.'))<CR>
     nnoremap <silent> <buffer> r :call <SID>Refresh(line('.'))<CR>
     nnoremap <silent> <buffer> R :call <SID>RefreshAll()<CR>

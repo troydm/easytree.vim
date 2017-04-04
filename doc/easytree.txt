@@ -153,7 +153,7 @@ g:easytree_width_auto_fit   (Default: 0)
         Press |n| and |N| to move your cursor over search results
         Pressing |F| instead of |f| will have last search pattern pretyped
     File management:
-        To create a new file/directory press |m| while having your cursor over/in directory were you want to 
+        To create a new file/directory press |a| or |m| while having your cursor over/in directory were you want to 
         create a new file/directory. If name specified will have / as it's suffix, a directory will be created,
         otherwise it'll create a file. All specified parent directories will be automaticly created as needed
         To rename a file/directory move your cursor over the file/dir you want to rename and press |c|
