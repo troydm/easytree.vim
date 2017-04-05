@@ -366,7 +366,7 @@ function! s:MoveFiles(linen)
         echo f
     endfor
     if s:AskConfirmation('are you sure you want to move the files here?')
-        let fpath = s:GetFullPath(a:linen)
+        let fpath = s:GetFullPathDir(a:linen)
         let files = s:GetPasteBuffer()
 
         let error = pyeval('easytree.EasyTreeCopyFiles()')
@@ -383,7 +383,7 @@ function! s:MoveFiles(linen)
         endif
 
         call pyeval('easytree.EasyTreeRemoveFiles()')
-        call s:Refresh(s:GetParentLvlLinen(a:linen))
+        call s:RefreshAll()
         if len(files) == 0 && len(error) == 0
             echom 'No files were moved'
             return
