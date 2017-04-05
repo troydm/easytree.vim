@@ -357,6 +357,10 @@ function! s:CopyFilesRange() range
 endfunction
 
 function! s:MoveFiles(linen)
+    if len(s:GetPasteBuffer()) < 1
+        echom 'no files selected for moving'
+        return
+    endif
     echo 'paste buffer:'
     for f in s:GetPasteBuffer()
         echo f
