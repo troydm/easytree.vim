@@ -358,7 +358,7 @@ endfunction
 
 function! s:MoveFiles(linen)
     if len(s:GetPasteBuffer()) < 1
-        echom "no files selected for moving"
+        echom 'no files selected for moving'
         return
     endif
     echo 'paste buffer:'
