@@ -24,5 +24,6 @@ Dmitry Geurkov (d.geurkov@gmail.com)
 contributors
 ------------
 Matteo Cavalleri
+Jan Mollowitz
 
 [NERDTree]: https://github.com/scrooloose/nerdtree
