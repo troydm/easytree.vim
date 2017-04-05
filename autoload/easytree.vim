@@ -362,7 +362,7 @@ function! s:MoveFiles(linen)
         echo f
     endfor
     if s:AskConfirmation('are you sure you want to move the files here?')
-        let fpath = s:GetFullPath(a:linen)
+        let fpath = s:GetFullPathDir(a:linen)
         let files = s:GetPasteBuffer()
 
         let error = pyeval('easytree.EasyTreeCopyFiles()')
