@@ -379,7 +379,7 @@ function! s:MoveFiles(linen)
         endif
 
         call pyeval('easytree.EasyTreeRemoveFiles()')
-        call s:Refresh(s:GetParentLvlLinen(a:linen))
+        call s:RefreshAll()
         if len(files) == 0 && len(error) == 0
             echom 'No files were moved'
             return
