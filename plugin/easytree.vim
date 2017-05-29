@@ -13,15 +13,15 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 " check python support and vim patchset version {{{
-if !has("python")
+if !has('python') && !has("python3")
     if exists("g:easytree_suppress_load_warning") && g:easytree_suppress_load_warning
         finish
     endif
-    echo "easytree needs vim compiled with +python option"
+    echo "easytree needs vim compiled with +python/+python3 option"
     finish
 endif
 
-if !exists('*pyeval')
+if !exists('*pyeval') && !exists('*py3eval')
     if exists("g:easytree_suppress_load_warning") && g:easytree_suppress_load_warning
         finish
     endif
