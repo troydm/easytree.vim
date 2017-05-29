@@ -29,7 +29,7 @@ Platform:
     only unix based operating systems are supported
 
 Requirements: 
-    vim 7.3 compiled with python support and atleast 569 patchset included
+    vim 7.3 compiled with python/python3 support and atleast 569 patchset included
 
 ============================================================================================
  2. CONFIGURATION                                        *easytree.vim-configuration*
