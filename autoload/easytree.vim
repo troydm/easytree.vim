@@ -182,15 +182,15 @@ function! s:GetFullPath(linen)
     endif
     let dirp = getline(1)
     let dirm = ''
-    let line = getline(a:linen)
+    let line = s:RemoveFlag(a:linen)
     let fname = ''
     let lvl = s:GetLvl(line)
     let lvln = a:linen
     while lvl > 0
-        let fname = s:easytree_path_sep.s:GetFName(getline(lvln)).fname
+        let fname = s:easytree_path_sep.s:GetFName(s:RemoveFlag(lvln)).fname
         let lvl -= 1
         if lvl > 0
-            while s:GetLvl(getline(lvln)) != lvl
+            while s:GetLvl(s:RemoveFlag(lvln)) != lvl
                 let lvln -= 1
             endwhile
         endif
@@ -203,6 +203,10 @@ function! s:GetFullPath(linen)
         endif
         return dirp.fname
     endif
+endfunction
+
+function! s:RemoveFlag(linen)
+    return substitute(getline(a:linen),'\[.\]', '', '')
 endfunction
 
 function! s:DirName(path)
@@ -496,6 +500,16 @@ function! s:RemoveFile(linen)
     for m in messages
         echom m
     endfor
+endfunction
+
+function! s:ToggleVcsIgnore()
+    let g:ShowVcsIgnored = !g:ShowVcsIgnored
+    call s:RefreshAll()
+endfunction
+
+function! s:FilterStatus()
+    let g:OnlyTouched = !g:OnlyTouched
+    call s:RefreshAll()
 endfunction
 
 function! s:RemoveFiles() range
@@ -930,10 +944,13 @@ function! s:ExpandDir(fpath,linen)
     endif
     let linen = a:linen
     if g:easytree_use_plus_and_minus
-        call setline(linen,substitute(getline(linen),'+','-',''))
+        let symbol_dir = '+'
+        let symbol_expanded_dir = '-'
     else
-        call setline(linen,substitute(getline(linen),'▸','▾',''))
+        let symbol_dir = '▸'
+        let symbol_expanded_dir = '▾'
     endif
+    call setline(linen,substitute(getline(linen),symbol_dir,symbol_expanded_dir,''))
     let lvl = s:GetLvl(getline(linen))
     let lvls = repeat('  ',lvl)
     if has('python')
@@ -941,27 +958,53 @@ function! s:ExpandDir(fpath,linen)
     elseif has('python3')
         let treelist = py3eval("easytree.EasyTreeListDir(vim.eval('a:fpath'),".b:showhidden.")")
     endif
+    let l:root = treelist[0]
     let cascade = g:easytree_cascade_open_single_dir && len(treelist[1]) == 1 && len(treelist[2]) == 0
     for d in treelist[1]
-        if g:easytree_use_plus_and_minus
-            call append(linen,lvls.'+ '.d)
-        else
-            call append(linen,lvls.'▸ '.d)
-        endif
-        let linen += 1
-        let fpath = s:GetFullPath(linen)
-        if (has_key(b:expanded,fpath) && b:expanded[fpath]) || cascade
-            let linen = s:ExpandDir(fpath,linen)
+        if s:Show_path(d, l:root, 1)
+            call append(linen,lvls.symbol_dir.' '.s:Format_dir(d, l:root))
+            let linen += 1
+            let fpath = s:GetFullPath(linen)
+            if (has_key(b:expanded,fpath) && b:expanded[fpath]) || cascade
+                let linen = s:ExpandDir(fpath,linen)
+            endif
         endif
     endfor
     for f in treelist[2]
-        call append(linen,lvls.'  '.f)
-        let linen += 1
+        if s:Show_path(f, l:root, 0)
+            call append(linen,lvls.'  '.s:Format_file(f, l:root))
+            let linen += 1
+        endif
     endfor
     call s:WidthAutoFit()
     return linen
 endfunction
 " }}}
+
+function! s:Show_path(path, root, isDir)
+    return (g:OnlyTouched == 0 || s:IsPathTouched(a:path, a:root, a:isDir) == 1)
+                \ && (g:ShowVcsIgnored == 1 || s:IsPathIgnored(a:path, a:root, a:isDir) == 0)
+endfunction
+
+function! s:Format_dir(dir, root)
+    let l:flag = g:TreeGetGitStatusPrefix(a:root.s:easytree_path_sep.a:dir, 1)
+    if (l:flag != '')
+        return '['.l:flag.']'.a:dir
+    endif
+    return a:dir
+endfunction
+
+function! s:Format_file(file, root)
+    let l:flag = g:TreeGetGitStatusPrefix(a:root.s:easytree_path_sep.a:file, 0)
+    if (l:flag != '')
+        return '['.l:flag.']'.a:file
+    endif
+    return a:file
+endfunction
+
+
+let g:OnlyTouched = 0
+let g:ShowVcsIgnored = 0
 
 " easytree window functions {{{
 function! s:InitializeTree(dir)
@@ -974,20 +1017,152 @@ function! s:InitializeTree(dir)
         let treelist = py3eval("easytree.EasyTreeListDir(vim.eval('a:dir'),".b:showhidden.")")
     endif
     silent! normal! gg"_dG
-    call setline(1, treelist[0])
+    let l:root = treelist[0]
+    call setline(1, l:root)
+    let b:TreeCachedGitFileStatus = {}
+    let b:TreeCachedGitDirtyDir   = {}
+    call s:Git_status(l:root)
     call append(1, '  .. (up a dir)')
+    if g:easytree_use_plus_and_minus
+        let dir_symbol = '+'
+    else
+        let dir_symbol = '▸'
+    endif
     for d in treelist[1]
-        if g:easytree_use_plus_and_minus
-            call append(line('$'),'+ '.d)
-        else
-            call append(line('$'),'▸ '.d)
+        if s:Show_path(d, l:root, 1)
+            call append(line('$'),dir_symbol.' '.s:Format_dir(d, l:root))
         endif
     endfor
     for f in treelist[2]
-        call append(line('$'),'  '.f)
+        if s:Show_path(f, l:root, 0)
+            call append(line('$'),'  '.s:Format_file(f, l:root))
+        endif
     endfor
     setlocal nomodifiable
     call s:WidthAutoFit()
+endfunction
+
+function! s:Git_status(root)
+    let l:statusesStr = system('git status --porcelain --untracked --ignored ' . a:root)
+    let l:statusesSplit = split(l:statusesStr, '\n')
+    let b:IsGitRepository = 1
+    if l:statusesSplit != [] && l:statusesSplit[0] =~# 'fatal:.*'
+        let l:statusesSplit = []
+        let b:IsGitRepository = 0
+        return
+    endif
+
+    for l:statusLine in l:statusesSplit
+        " cache git status of files
+        let l:pathStr = substitute(l:statusLine, '...', '', '')
+        let l:pathSplit = split(l:pathStr, ' -> ')
+        if len(l:pathSplit) == 2
+            call s:TreeCacheDirtyDir(l:pathSplit[0])
+            let l:pathStr = l:pathSplit[1]
+        else
+            let l:pathStr = l:pathSplit[0]
+        endif
+        "let l:pathStr = s:TreeTrimDoubleQuotes(l:pathStr)
+        "if l:pathStr =~# '\.\./.*'
+            "continue
+        "endif
+        let l:statusKey = s:TreeGetFileGitStatusKey(l:statusLine[0], l:statusLine[1])
+        let b:TreeCachedGitFileStatus[fnameescape(l:pathStr)] = l:statusKey
+
+        if l:statusKey == 'Ignored'
+            if isdirectory(l:pathStr)
+                let b:TreeCachedGitDirtyDir[fnameescape(l:pathStr)] = l:statusKey
+            endif
+        else
+            call s:TreeCacheDirtyDir(l:pathStr)
+        endif
+    endfor
+endfunction
+
+function! s:TreeCacheDirtyDir(pathStr)
+    " cache dirty dir
+    "let l:dirtyPath = s:TreeTrimDoubleQuotes(a:pathStr)
+    let l:dirtyPath = a:pathStr
+    if l:dirtyPath =~# '\.\./.*'
+        return
+    endif
+    let l:dirtyPath = substitute(l:dirtyPath, '/[^/]*$', '/', '')
+    while l:dirtyPath =~# '.\+/.*' && has_key(b:TreeCachedGitDirtyDir, fnameescape(l:dirtyPath)) == 0
+        let b:TreeCachedGitDirtyDir[fnameescape(l:dirtyPath)] = 'Dirty'
+        let l:dirtyPath = substitute(l:dirtyPath, '/[^/]*/$', '/', '')
+    endwhile
+endfunction
+
+if !exists('s:TreeIndicatorMap')
+    let s:TreeIndicatorMap = {
+                \ 'Modified'  : '✹',
+                \ 'Staged'    : '✚',
+                \ 'Untracked' : '✭',
+                \ 'Renamed'   : '➜',
+                \ 'Unmerged'  : '═',
+                \ 'Deleted'   : '✖',
+                \ 'Dirty'     : '✗',
+                \ 'Clean'     : '✔︎',
+                \ 'Ignored'   : '☒',
+                \ 'Unknown'   : '?'
+                \ }
+endif
+
+function! s:TreeGetIndicator(statusKey)
+    let l:indicator = get(s:TreeIndicatorMap, a:statusKey, '')
+    if l:indicator !=# ''
+        return l:indicator
+    endif
+    return ''
+endfunction
+
+function! s:TreeGetFileGitStatusKey(us, them)
+    if a:us ==# '?' && a:them ==# '?'
+        return 'Untracked'
+    elseif a:us ==# ' ' && a:them ==# 'M'
+        return 'Modified'
+    elseif a:us =~# '[MAC]'
+        return 'Staged'
+    elseif a:us ==# 'R'
+        return 'Renamed'
+    elseif a:us ==# 'U' || a:them ==# 'U' || a:us ==# 'A' && a:them ==# 'A' || a:us ==# 'D' && a:them ==# 'D'
+        return 'Unmerged'
+    elseif a:them ==# 'D'
+        return 'Deleted'
+    elseif a:us ==# '!'
+        return 'Ignored'
+    else
+        return 'Unknown'
+    endif
+endfunction
+
+"let s:GitStatusCacheTimeExpiry = 2
+"let s:GitStatusCacheTime = 0
+function! g:TreeGetGitStatusPrefix(path, isDirectory)
+"    if localtime() - s:GitStatusCacheTime > s:GitStatusCacheTimeExpiry
+        "let s:GitStatusCacheTime = localtime()
+        "call g:TreeGitStatusRefresh()
+"    endif
+    let l:pathStr = a:path
+    let l:cwd = getcwd().s:easytree_path_sep
+    let l:pathStr = substitute(l:pathStr, fnameescape(l:cwd), '', '')
+    let l:statusKey = ''
+    if a:isDirectory
+        let l:statusKey = get(b:TreeCachedGitDirtyDir, fnameescape(l:pathStr . '/'), '')
+    else
+        let l:statusKey = get(b:TreeCachedGitFileStatus, fnameescape(l:pathStr), '')
+    endif
+    return s:TreeGetIndicator(l:statusKey)
+endfunction
+
+function! s:IsPathTouched(path, root, isDirectory)
+    let l:statusPrefix = g:TreeGetGitStatusPrefix(a:root.s:easytree_path_sep.a:path, a:isDirectory)
+    return l:statusPrefix != ''
+endfunction
+
+function! s:IsPathIgnored(path, root, isDirectory)
+    let l:statusPrefix = g:TreeGetGitStatusPrefix(a:root.s:easytree_path_sep.a:path, a:isDirectory)
+    return l:statusPrefix == s:TreeGetIndicator('Ignored')
 endfunction
 
 function! s:InitializeNewTree(dir)
@@ -1369,6 +1544,8 @@ function! easytree#OpenTree(win, dir)
     nnoremap <silent> <buffer> P :call <SID>EchoPasteBuffer()<CR>
     nnoremap <silent> <buffer> dd :call <SID>RemoveFile(line('.'))<CR>
     vnoremap <silent> <buffer> d :call <SID>RemoveFiles()<CR>
+    nnoremap <silent> <buffer> fs :call <SID>FilterStatus()<CR>
+    nnoremap <silent> <buffer> fi :call <SID>ToggleVcsIgnore()<CR>
     call s:InitializeNewTree(dir)
 endfunction
 " }}}
