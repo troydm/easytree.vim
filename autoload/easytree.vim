@@ -25,7 +25,8 @@ endif
 " }}}
 
 " load python module {{{
-python << EOF
+if has('python')
+    python << EOF
 import vim, os, random, sys
 easytree_path = vim.eval("expand('<sfile>:h')")
 if not easytree_path in sys.path:
@@ -33,9 +34,23 @@ if not easytree_path in sys.path:
 del easytree_path
 import easytree
 EOF
+elseif has('python3')
+    python3 << EOF
+import vim, os, random, sys
+easytree_path = vim.eval("expand('<sfile>:h').'/python3'")
+if not easytree_path in sys.path:
+    sys.path.insert(0, easytree_path)
+del easytree_path
+import easytree
+EOF
+endif
 " }}}
 
-let s:easytree_on_windows = pyeval('easytree.easytree_on_windows')
+if has('python')
+    let s:easytree_on_windows = pyeval('easytree.easytree_on_windows')
+elseif has('python3')
+    let s:easytree_on_windows = py3eval('easytree.easytree_on_windows')
+endif
 if s:easytree_on_windows
     let s:easytree_path_sep = '\'
 else
@@ -138,11 +153,16 @@ endfunction
 
 function! s:GetFullPathDir(linen)
     let fpath = s:GetFullPath(a:linen)
-    if pyeval("os.path.isdir(vim.eval('fpath'))")
+    if has('python') && pyeval("os.path.isdir(vim.eval('fpath'))")
+        return fpath
+    elseif has('python3') && py3eval("os.path.isdir(vim.eval('fpath'))")
         return fpath
     else
-        let fpath = pyeval("os.path.dirname(vim.eval('fpath'))")
-        return fpath
+        if has('python')
+            let fpath = pyeval("os.path.dirname(vim.eval('fpath'))")
+        elseif has('python3')
+            let fpath = py3eval("os.path.dirname(vim.eval('fpath'))")
+        endif
     endif
 endfunction
 
@@ -150,7 +170,11 @@ function! s:GetFullPath(linen)
     if a:linen == 2
         let dirp = getline(1)
         if dirp != '/'
-            let dirp = pyeval("os.path.abspath(vim.eval('dirp')+'".s:easytree_path_sep."..')")
+            if has('python')
+                let dirp = pyeval("os.path.abspath(vim.eval('dirp')+'".s:easytree_path_sep."..')")
+            elseif has('python3')
+                let dirp = py3eval("os.path.abspath(vim.eval('dirp')+'".s:easytree_path_sep."..')")
+            endif
         endif
         return dirp
     elseif a:linen == 1
@@ -158,15 +182,15 @@ function! s:GetFullPath(linen)
     endif
     let dirp = getline(1)
     let dirm = ''
-    let line = getline(a:linen)
+    let line = s:RemoveFlag(a:linen)
     let fname = ''
     let lvl = s:GetLvl(line)
     let lvln = a:linen
     while lvl > 0
-        let fname = s:easytree_path_sep.s:GetFName(getline(lvln)).fname
+        let fname = s:easytree_path_sep.s:GetFName(s:RemoveFlag(lvln)).fname
         let lvl -= 1
         if lvl > 0
-            while s:GetLvl(getline(lvln)) != lvl
+            while s:GetLvl(s:RemoveFlag(lvln)) != lvl
                 let lvln -= 1
             endwhile
         endif
@@ -181,14 +205,26 @@ function! s:GetFullPath(linen)
     endif
 endfunction
 
+function! s:RemoveFlag(linen)
+    return substitute(getline(a:linen),'\[.\]', '', '')
+endfunction
+
 function! s:DirName(path)
     let path = a:path
-    return pyeval("os.path.dirname(vim.eval('path'))")
+    if has('python')
+        return pyeval("os.path.dirname(vim.eval('path'))")
+    elseif has('python3')
+        return py3eval("os.path.dirname(vim.eval('path'))")
+    endif
 endfunction
 
 function! s:FileName(path)
     let path = a:path
-    return pyeval("os.path.basename(vim.eval('path'))")
+    if has('python')
+        return pyeval("os.path.basename(vim.eval('path'))")
+    elseif has('python3')
+        return py3eval("os.path.basename(vim.eval('path'))")
+    endif
 endfunction
 
 function! s:GetPasteBuffer()
@@ -300,7 +336,9 @@ function! s:ChangeDirTo(...)
         let path = s:AskInputComplete('go to ',getline(1),'dir')
     endif
     if !empty(path)
-        if pyeval("os.path.isdir(os.path.expanduser(vim.eval('path')))")
+        if has('python') && pyeval("os.path.isdir(os.path.expanduser(vim.eval('path')))")
+            call s:InitializeNewTree(path)
+        elseif has('python3') && py3eval("os.path.isdir(os.path.expanduser(vim.eval('path')))")
             call s:InitializeNewTree(path)
         else
             redraw
@@ -369,7 +407,11 @@ function! s:MoveFiles(linen)
         let fpath = s:GetFullPathDir(a:linen)
         let files = s:GetPasteBuffer()
 
-        let error = pyeval('easytree.EasyTreeCopyFiles()')
+        if has('python')
+            let error = pyeval('easytree.EasyTreeCopyFiles()')
+        elseif has('python3')
+            let error = py3eval('easytree.EasyTreeCopyFiles()')
+        endif
         if type(error) == 1 && error == 'error'
             return
         endif
@@ -382,7 +424,11 @@ function! s:MoveFiles(linen)
             let files = s:GetPasteBuffer()
         endif
 
-        call pyeval('easytree.EasyTreeRemoveFiles()')
+        if has('python')
+            call pyeval('easytree.EasyTreeRemoveFiles()')
+        elseif has('python3')
+            call py3eval('easytree.EasyTreeRemoveFiles()')
+        endif
         call s:RefreshAll()
         if len(files) == 0 && len(error) == 0
             echom 'No files were moved'
@@ -427,7 +473,11 @@ function! s:PasteFiles(linen)
             echo f
         endfor
         if s:AskConfirmation('are you sure you want to paste '.filesm.'?')
-            python easytree.EasyTreeCopyFiles()
+            if has('python')
+                python easytree.EasyTreeCopyFiles()
+            elseif has('python3')
+                python3 easytree.EasyTreeCopyFiles()
+            endif
             call s:Refresh(a:linen)
         endif
     endif
@@ -439,13 +489,27 @@ function! s:RemoveFile(linen)
         let fpath = s:GetFullPath(a:linen)
         let files = [fpath]
         if s:DeleteBuf(fpath) && s:AskConfirmation('are you sure you want to delete this file?')
-            let messages = pyeval('easytree.EasyTreeRemoveFiles()')
+            if has('python')
+                let messages = pyeval('easytree.EasyTreeRemoveFiles()')
+            elseif has('python3')
+                let messages = py3eval('easytree.EasyTreeRemoveFiles()')
+            endif
             call s:Refresh(s:GetParentLvlLinen(a:linen))
         endif
     endif
     for m in messages
         echom m
     endfor
+endfunction
+
+function! s:ToggleVcsIgnore()
+    let g:ShowVcsIgnored = !g:ShowVcsIgnored
+    call s:RefreshAll()
+endfunction
+
+function! s:FilterStatus()
+    let g:OnlyTouched = !g:OnlyTouched
+    call s:RefreshAll()
 endfunction
 
 function! s:RemoveFiles() range
@@ -465,7 +529,11 @@ function! s:RemoveFiles() range
             echo f
         endfor
         if s:AskConfirmation('are you really sure you want to delete this files?')
-            let messages = pyeval('easytree.EasyTreeRemoveFiles()')
+            if has('python')
+                let messages = pyeval('easytree.EasyTreeRemoveFiles()')
+            elseif has('python3')
+                let messages = py3eval('easytree.EasyTreeRemoveFiles()')
+            endif
             call s:RefreshAll()
         endif
     endif
@@ -479,7 +547,11 @@ function! s:CreateFile(linen)
     let path = s:AskInput('create '.fpath,'')
     if !empty(path)
         let path = fpath.path
-        python easytree.EasyTreeCreateFile()
+        if has('python')
+            python easytree.EasyTreeCreateFile()
+        elseif has('python3')
+            python3 easytree.EasyTreeCreateFile()
+        endif
         call s:Refresh(a:linen)
     endif
 endfunction
@@ -493,7 +565,11 @@ function! s:RenameFile(linen)
         if !s:DeleteBuf(fpath)
             return
         endif
-        python easytree.EasyTreeRenameFile()
+        if has('python')
+            python easytree.EasyTreeRenameFile()
+        elseif has('python3')
+            python3 easytree.EasyTreeRenameFile()
+        endif
         call s:Refresh(s:GetParentLvlLinen(a:linen))
     endif
 endfunction
@@ -587,7 +663,12 @@ function! s:Find(linen, find)
         let @/ = ''
         let b:find = find
         echo 'searching for '.find
-        exe "let b:findresult = pyeval(\"easytree.EasyTreeFind(vim.eval('find'),vim.eval('fpath'),".b:showhidden.")\")"
+        if has('python')
+            let l:pyeval = "pyeval"
+        elseif has('python3')
+            let l:pyeval = "py3eval"
+        endif
+        exe "let b:findresult = ".l:pyeval."(\"easytree.EasyTreeFind(vim.eval('find'),vim.eval('fpath'),".b:showhidden.")\")"
         redraw
         if fpath != getline(1)
             let fpath = fpath[len(getline(1)):]
@@ -842,7 +923,12 @@ function! s:UnexpandDir(fpath,linen)
     else
         let linee -= 1
     endif
-    exe 'python vim.current.buffer['.linee.'] = None'
+    if has('python')
+        let l:pyexe = "python"
+    elseif has('python3')
+        let l:pyexe = "python3"
+    endif
+    exe l:pyexe.' vim.current.buffer['.linee.'] = None'
     call s:WidthAutoFit()
 endfunction
 
@@ -858,56 +944,225 @@ function! s:ExpandDir(fpath,linen)
     endif
     let linen = a:linen
     if g:easytree_use_plus_and_minus
-        call setline(linen,substitute(getline(linen),'+','-',''))
+        let symbol_dir = '+'
+        let symbol_expanded_dir = '-'
     else
-        call setline(linen,substitute(getline(linen),'▸','▾',''))
+        let symbol_dir = '▸'
+        let symbol_expanded_dir = '▾'
     endif
+    call setline(linen,substitute(getline(linen),symbol_dir,symbol_expanded_dir,''))
     let lvl = s:GetLvl(getline(linen))
     let lvls = repeat('  ',lvl)
-    let treelist = pyeval("easytree.EasyTreeListDir(vim.eval('a:fpath'),".b:showhidden.")")
+    if has('python')
+        let treelist = pyeval("easytree.EasyTreeListDir(vim.eval('a:fpath'),".b:showhidden.")")
+    elseif has('python3')
+        let treelist = py3eval("easytree.EasyTreeListDir(vim.eval('a:fpath'),".b:showhidden.")")
+    endif
+    let l:root = treelist[0]
     let cascade = g:easytree_cascade_open_single_dir && len(treelist[1]) == 1 && len(treelist[2]) == 0
     for d in treelist[1]
-        if g:easytree_use_plus_and_minus
-            call append(linen,lvls.'+ '.d)
-        else
-            call append(linen,lvls.'▸ '.d)
-        endif
-        let linen += 1
-        let fpath = s:GetFullPath(linen)
-        if (has_key(b:expanded,fpath) && b:expanded[fpath]) || cascade
-            let linen = s:ExpandDir(fpath,linen)
+        if s:Show_path(d, l:root, 1)
+            call append(linen,lvls.symbol_dir.' '.s:Format_dir(d, l:root))
+            let linen += 1
+            let fpath = s:GetFullPath(linen)
+            if (has_key(b:expanded,fpath) && b:expanded[fpath]) || cascade
+                let linen = s:ExpandDir(fpath,linen)
+            endif
         endif
     endfor
     for f in treelist[2]
-        call append(linen,lvls.'  '.f)
-        let linen += 1
+        if s:Show_path(f, l:root, 0)
+            call append(linen,lvls.'  '.s:Format_file(f, l:root))
+            let linen += 1
+        endif
     endfor
     call s:WidthAutoFit()
     return linen
 endfunction
 " }}}
 
+function! s:Show_path(path, root, isDir)
+    return (g:OnlyTouched == 0 || s:IsPathTouched(a:path, a:root, a:isDir) == 1)
+                \ && (g:ShowVcsIgnored == 1 || s:IsPathIgnored(a:path, a:root, a:isDir) == 0)
+endfunction
+
+function! s:Format_dir(dir, root)
+    let l:flag = g:TreeGetGitStatusPrefix(a:root.s:easytree_path_sep.a:dir, 1)
+    if (l:flag != '')
+        return '['.l:flag.']'.a:dir
+    endif
+    return a:dir
+endfunction
+
+function! s:Format_file(file, root)
+    let l:flag = g:TreeGetGitStatusPrefix(a:root.s:easytree_path_sep.a:file, 0)
+    if (l:flag != '')
+        return '['.l:flag.']'.a:file
+    endif
+    return a:file
+endfunction
+
+
+let g:OnlyTouched = 0
+let g:ShowVcsIgnored = 0
+
 " easytree window functions {{{
 function! s:InitializeTree(dir)
     setlocal modifiable
     let b:find = ''
     let b:findresult = []
-    let treelist = pyeval("easytree.EasyTreeListDir(vim.eval('a:dir'),".b:showhidden.")")
+    if has('python')
+        let treelist = pyeval("easytree.EasyTreeListDir(vim.eval('a:dir'),".b:showhidden.")")
+    elseif has('python3')
+        let treelist = py3eval("easytree.EasyTreeListDir(vim.eval('a:dir'),".b:showhidden.")")
+    endif
     silent! normal! gg"_dG
-    call setline(1, treelist[0])
+    let l:root = treelist[0]
+    call setline(1, l:root)
+    let b:TreeCachedGitFileStatus = {}
+    let b:TreeCachedGitDirtyDir   = {}
+    call s:Git_status(l:root)
     call append(1, '  .. (up a dir)')
+    if g:easytree_use_plus_and_minus
+        let dir_symbol = '+'
+    else
+        let dir_symbol = '▸'
+    endif
     for d in treelist[1]
-        if g:easytree_use_plus_and_minus
-            call append(line('$'),'+ '.d)
-        else
-            call append(line('$'),'▸ '.d)
+        if s:Show_path(d, l:root, 1)
+            call append(line('$'),dir_symbol.' '.s:Format_dir(d, l:root))
         endif
     endfor
     for f in treelist[2]
-        call append(line('$'),'  '.f)
+        if s:Show_path(f, l:root, 0)
+            call append(line('$'),'  '.s:Format_file(f, l:root))
+        endif
     endfor
     setlocal nomodifiable
     call s:WidthAutoFit()
+endfunction
+
+function! s:Git_status(root)
+    let l:statusesStr = system('git status --porcelain --untracked --ignored ' . a:root)
+    let l:statusesSplit = split(l:statusesStr, '\n')
+    let b:IsGitRepository = 1
+    if l:statusesSplit != [] && l:statusesSplit[0] =~# 'fatal:.*'
+        let l:statusesSplit = []
+        let b:IsGitRepository = 0
+        return
+    endif
+
+    for l:statusLine in l:statusesSplit
+        " cache git status of files
+        let l:pathStr = substitute(l:statusLine, '...', '', '')
+        let l:pathSplit = split(l:pathStr, ' -> ')
+        if len(l:pathSplit) == 2
+            call s:TreeCacheDirtyDir(l:pathSplit[0])
+            let l:pathStr = l:pathSplit[1]
+        else
+            let l:pathStr = l:pathSplit[0]
+        endif
+        "let l:pathStr = s:TreeTrimDoubleQuotes(l:pathStr)
+        "if l:pathStr =~# '\.\./.*'
+            "continue
+        "endif
+        let l:statusKey = s:TreeGetFileGitStatusKey(l:statusLine[0], l:statusLine[1])
+        let b:TreeCachedGitFileStatus[fnameescape(l:pathStr)] = l:statusKey
+
+        if l:statusKey == 'Ignored'
+            if isdirectory(l:pathStr)
+                let b:TreeCachedGitDirtyDir[fnameescape(l:pathStr)] = l:statusKey
+            endif
+        else
+            call s:TreeCacheDirtyDir(l:pathStr)
+        endif
+    endfor
+endfunction
+
+function! s:TreeCacheDirtyDir(pathStr)
+    " cache dirty dir
+    "let l:dirtyPath = s:TreeTrimDoubleQuotes(a:pathStr)
+    let l:dirtyPath = a:pathStr
+    if l:dirtyPath =~# '\.\./.*'
+        return
+    endif
+    let l:dirtyPath = substitute(l:dirtyPath, '/[^/]*$', '/', '')
+    while l:dirtyPath =~# '.\+/.*' && has_key(b:TreeCachedGitDirtyDir, fnameescape(l:dirtyPath)) == 0
+        let b:TreeCachedGitDirtyDir[fnameescape(l:dirtyPath)] = 'Dirty'
+        let l:dirtyPath = substitute(l:dirtyPath, '/[^/]*/$', '/', '')
+    endwhile
+endfunction
+
+if !exists('s:TreeIndicatorMap')
+    let s:TreeIndicatorMap = {
+                \ 'Modified'  : '✹',
+                \ 'Staged'    : '✚',
+                \ 'Untracked' : '✭',
+                \ 'Renamed'   : '➜',
+                \ 'Unmerged'  : '═',
+                \ 'Deleted'   : '✖',
+                \ 'Dirty'     : '✗',
+                \ 'Clean'     : '✔︎',
+                \ 'Ignored'   : '☒',
+                \ 'Unknown'   : '?'
+                \ }
+endif
+
+function! s:TreeGetIndicator(statusKey)
+    let l:indicator = get(s:TreeIndicatorMap, a:statusKey, '')
+    if l:indicator !=# ''
+        return l:indicator
+    endif
+    return ''
+endfunction
+
+function! s:TreeGetFileGitStatusKey(us, them)
+    if a:us ==# '?' && a:them ==# '?'
+        return 'Untracked'
+    elseif a:us ==# ' ' && a:them ==# 'M'
+        return 'Modified'
+    elseif a:us =~# '[MAC]'
+        return 'Staged'
+    elseif a:us ==# 'R'
+        return 'Renamed'
+    elseif a:us ==# 'U' || a:them ==# 'U' || a:us ==# 'A' && a:them ==# 'A' || a:us ==# 'D' && a:them ==# 'D'
+        return 'Unmerged'
+    elseif a:them ==# 'D'
+        return 'Deleted'
+    elseif a:us ==# '!'
+        return 'Ignored'
+    else
+        return 'Unknown'
+    endif
+endfunction
+
+"let s:GitStatusCacheTimeExpiry = 2
+"let s:GitStatusCacheTime = 0
+function! g:TreeGetGitStatusPrefix(path, isDirectory)
+"    if localtime() - s:GitStatusCacheTime > s:GitStatusCacheTimeExpiry
+        "let s:GitStatusCacheTime = localtime()
+        "call g:TreeGitStatusRefresh()
+"    endif
+    let l:pathStr = a:path
+    let l:cwd = getcwd().s:easytree_path_sep
+    let l:pathStr = substitute(l:pathStr, fnameescape(l:cwd), '', '')
+    let l:statusKey = ''
+    if a:isDirectory
+        let l:statusKey = get(b:TreeCachedGitDirtyDir, fnameescape(l:pathStr . '/'), '')
+    else
+        let l:statusKey = get(b:TreeCachedGitFileStatus, fnameescape(l:pathStr), '')
+    endif
+    return s:TreeGetIndicator(l:statusKey)
+endfunction
+
+function! s:IsPathTouched(path, root, isDirectory)
+    let l:statusPrefix = g:TreeGetGitStatusPrefix(a:root.s:easytree_path_sep.a:path, a:isDirectory)
+    return l:statusPrefix != ''
+endfunction
+
+function! s:IsPathIgnored(path, root, isDirectory)
+    let l:statusPrefix = g:TreeGetGitStatusPrefix(a:root.s:easytree_path_sep.a:path, a:isDirectory)
+    return l:statusPrefix == s:TreeGetIndicator('Ignored')
 endfunction
 
 function! s:InitializeNewTree(dir)
@@ -1026,17 +1281,40 @@ endfunction
 
 function! s:GetInfo(linen)
     let fpath = s:GetFullPath(a:linen)
-    let info = pyeval('easytree.EasyTreeGetInfo()')
+    if has('python')
+        let info = pyeval('easytree.EasyTreeGetInfo()')
+    elseif has('python3')
+        let info = py3eval('easytree.EasyTreeGetInfo()')
+    endif
     echo 'name: '.info[0].'  owner: '.info[1].(info[2] == '' ? '' : ':'.info[2]).'  size: '.info[3].'  mode: '.info[4].'  last modified: '.info[5]
-    if pyeval('easytree.easytree_dirsize_calculator != None')
+    if has('python')
+        let dirsize = pyeval('easytree.easytree_dirsize_calculator != None')
+    elseif has('python3')
+        let dirsize = py3eval('easytree.easytree_dirsize_calculator != None')
+    endif
+    if dirsize
         while 1
             sleep 1
-            let info[3] = pyeval("easytree.EasyTreeGetSize(easytree.easytree_dirsize_calculator_curr_size)+(('.'*random.randint(1,3)).ljust(3))")
+            if has('python')
+                let info[3] = pyeval("easytree.EasyTreeGetSize(easytree.easytree_dirsize_calculator_curr_size)+(('.'*random.randint(1,3)).ljust(3))")
+            elseif has('python3')
+                let info[3] = py3eval("easytree.EasyTreeGetSize(easytree.easytree_dirsize_calculator_curr_size)+(('.'*random.randint(1,3)).ljust(3))")
+            endif
             redraw
             echo 'name: '.info[0].'  owner: '.info[1].(info[2] == '' ? '' : ':'.info[2]).'  size: '.info[3].'  mode: '.info[4].'  last modified: '.info[5]
-            if !pyeval('easytree.easytree_dirsize_calculator.isAlive()')
-                let info[3] = pyeval("easytree.EasyTreeGetSize(easytree.easytree_dirsize_calculator_curr_size)")
-                python easytree.easytree_dirsize_calculator = None
+            if has('python')
+                let l:isAlive = pyeval('easytree.easytree_dirsize_calculator.isAlive()')
+            elseif has('python3')
+                let l:isAlive = py3eval('easytree.easytree_dirsize_calculator.isAlive()')
+            endif
+            if !l:isAlive
+                if has('python')
+                    let info[3] = pyeval("easytree.EasyTreeGetSize(easytree.easytree_dirsize_calculator_curr_size)")
+                    python easytree.easytree_dirsize_calculator = None
+                elseif has('python3')
+                    let info[3] = py3eval("easytree.EasyTreeGetSize(easytree.easytree_dirsize_calculator_curr_size)")
+                    python3 easytree.easytree_dirsize_calculator = None
+                endif
                 break
             endif
         endwhile
@@ -1186,8 +1464,17 @@ function! easytree#OpenTree(win, dir)
     if empty(dir)
         let dir = getcwd()
     endif
-    let dir = pyeval("os.path.expanduser(vim.eval('dir'))")
-    if !pyeval("os.path.isdir(vim.eval('dir'))")
+    if has('python')
+        let dir = pyeval("os.path.expanduser(vim.eval('dir'))")
+    elseif has('python3')
+        let dir = py3eval("os.path.expanduser(vim.eval('dir'))")
+    endif
+    if has('python')
+        let isDir = pyeval("os.path.isdir(vim.eval('dir'))")
+    elseif has('python3')
+        let isDir = py3eval("os.path.isdir(vim.eval('dir'))")
+    endif
+    if !isDir
         echo 'invalid path '.dir
         return
     endif
@@ -1257,6 +1544,8 @@ function! easytree#OpenTree(win, dir)
     nnoremap <silent> <buffer> P :call <SID>EchoPasteBuffer()<CR>
     nnoremap <silent> <buffer> dd :call <SID>RemoveFile(line('.'))<CR>
     vnoremap <silent> <buffer> d :call <SID>RemoveFiles()<CR>
+    nnoremap <silent> <buffer> fs :call <SID>FilterStatus()<CR>
+    nnoremap <silent> <buffer> fi :call <SID>ToggleVcsIgnore()<CR>
     call s:InitializeNewTree(dir)
 endfunction
 " }}}

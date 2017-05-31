@@ -29,7 +29,7 @@ Platform:
     only unix based operating systems are supported
 
 Requirements: 
-    vim 7.3 compiled with python support and atleast 569 patchset included
+    vim 7.3 compiled with python/python3 support and atleast 569 patchset included
 
 ============================================================================================
  2. CONFIGURATION                                        *easytree.vim-configuration*
@@ -137,6 +137,9 @@ g:easytree_width_auto_fit   (Default: 0)
         and press |<Enter>| or |o|. Pressing |O| will expand all sub directories too
         To close a directory move your cursor over expanded directory and press |<Enter>| or |x|
         To close all sub directories press |X| instead
+    VCS Filter (Avaliable for git):
+        To show only touched files use |fs|
+        To show/hide ignored files use |fi|
     Root tree navigation:
         To go up in filesystem hierarchy move your cursor over the second line and press |<Enter>| or
         just press |u| without changing position of your cursor
@@ -179,7 +182,6 @@ g:easytree_width_auto_fit   (Default: 0)
         To hide some files in current tree according to comma seperated pattern list use |zf|
         To hide some dirs in current tree according to comma seperated pattern list use |zd|
         To hide find results in current tree according to comma seperated pattern list use |zs|
-        To quickly access help just press |?|
         To close easytree window just press |q|
 
                                                                   *EasyTreeHere*
