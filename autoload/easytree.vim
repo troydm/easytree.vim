@@ -1257,6 +1257,7 @@ function! easytree#OpenTree(win, dir)
     nnoremap <silent> <buffer> P :call <SID>EchoPasteBuffer()<CR>
     nnoremap <silent> <buffer> dd :call <SID>RemoveFile(line('.'))<CR>
     vnoremap <silent> <buffer> d :call <SID>RemoveFiles()<CR>
+    nnoremap <silent> <buffer> ? :help EasyTree<CR>
     call s:InitializeNewTree(dir)
 endfunction
 " }}}
