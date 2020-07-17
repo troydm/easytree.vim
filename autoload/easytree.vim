@@ -25,7 +25,7 @@ endif
 " }}}
 
 " load python module {{{
-python << EOF
+python3 << EOF
 import vim, os, random, sys
 easytree_path = vim.eval("expand('<sfile>:h')")
 if not easytree_path in sys.path:
@@ -427,7 +427,7 @@ function! s:PasteFiles(linen)
             echo f
         endfor
         if s:AskConfirmation('are you sure you want to paste '.filesm.'?')
-            python easytree.EasyTreeCopyFiles()
+            python3 easytree.EasyTreeCopyFiles()
             call s:Refresh(a:linen)
         endif
     endif
@@ -479,7 +479,7 @@ function! s:CreateFile(linen)
     let path = s:AskInput('create '.fpath,'')
     if !empty(path)
         let path = fpath.path
-        python easytree.EasyTreeCreateFile()
+        python3 easytree.EasyTreeCreateFile()
         call s:Refresh(a:linen)
     endif
 endfunction
@@ -493,7 +493,7 @@ function! s:RenameFile(linen)
         if !s:DeleteBuf(fpath)
             return
         endif
-        python easytree.EasyTreeRenameFile()
+        python3 easytree.EasyTreeRenameFile()
         call s:Refresh(s:GetParentLvlLinen(a:linen))
     endif
 endfunction
@@ -842,7 +842,7 @@ function! s:UnexpandDir(fpath,linen)
     else
         let linee -= 1
     endif
-    exe 'python vim.current.buffer['.linee.'] = None'
+    exe 'python3 vim.current.buffer['.linee.'] = None'
     call s:WidthAutoFit()
 endfunction
 
@@ -1036,7 +1036,7 @@ function! s:GetInfo(linen)
             echo 'name: '.info[0].'  owner: '.info[1].(info[2] == '' ? '' : ':'.info[2]).'  size: '.info[3].'  mode: '.info[4].'  last modified: '.info[5]
             if !py3eval('easytree.easytree_dirsize_calculator.isAlive()')
                 let info[3] = py3eval("easytree.EasyTreeGetSize(easytree.easytree_dirsize_calculator_curr_size)")
-                python easytree.easytree_dirsize_calculator = None
+                python3 easytree.easytree_dirsize_calculator = None
                 break
             endif
         endwhile
