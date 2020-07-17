@@ -27,7 +27,7 @@ def EasyTreeFind(pattern,dir,showhidden):
         pattern = '*'+pattern+'*'
     ignore_find_result = vim.eval('b:ignore_find_result')
     filelist = EasyTreeList(dir,showhidden, lambda f: fnmatch.fnmatch(f,pattern))
-    filelist = filter(lambda f: not EasyTreeFnmatchList(f,ignore_find_result), filelist)
+    filelist = [f for f in filelist if not EasyTreeFnmatchList(f,ignore_find_result)]
     return filelist
 
 def EasyTreeList(dir,showhidden,findfilter):
@@ -43,17 +43,17 @@ def EasyTreeList(dir,showhidden,findfilter):
         if not showhidden:
             if root.startswith('.') or os.sep+'.' in root:
                 continue
-            dirs = filter(lambda d: not d.startswith("."),dirs)
-            files = filter(lambda f: not f.startswith("."),files)
+            dirs = [d for d in dirs if not d.startswith(".")]
+            files = [f for f in files if not f.startswith(".")]
         if len(root) > 0:
             if EasyTreeFnmatchList(root,ignore_dirs):
                 continue
-            dirs = map(lambda d: root+os.sep+d,dirs)
-            files = map(lambda f: root+os.sep+f,files)
-        dirs = filter(findfilter, dirs)
-        files = filter(findfilter, files)
-        dirs = filter(lambda d: not EasyTreeFnmatchList(d,ignore_dirs), dirs)
-        files = filter(lambda f: not EasyTreeFnmatchList(f,ignore_files), files)
+            dirs = [root+os.sep+d for d in dirs]
+            files = [root+os.sep+f for f in files]
+        dirs = list(filter(findfilter, dirs))
+        files = list(filter(findfilter, files))
+        dirs = [d for d in dirs if not EasyTreeFnmatchList(d,ignore_dirs)]
+        files = [f for f in files if not EasyTreeFnmatchList(f,ignore_files)]
         dirs = sorted(dirs)
         files = sorted(files)
         filelist.extend(dirs)
@@ -66,10 +66,10 @@ def EasyTreeListDir(dir,showhidden):
     ignore_files = vim.eval('b:ignore_files')
     for root, dirs, files in os.walk(dir):
         if int(showhidden) == 0:
-            dirs = filter(lambda d: not d.startswith("."),dirs)
-            files = filter(lambda f: not f.startswith("."),files)
-        dirs = filter(lambda d: not EasyTreeFnmatchList(d,ignore_dirs), dirs)
-        files = filter(lambda f: not EasyTreeFnmatchList(f,ignore_files), files)
+            dirs = [d for d in dirs if not d.startswith(".")]
+            files = [f for f in files if not f.startswith(".")]
+        dirs = [d for d in dirs if not EasyTreeFnmatchList(d,ignore_dirs)]
+        files = [f for f in files if not EasyTreeFnmatchList(f,ignore_files)]
         dirs = sorted(dirs)
         files = sorted(files)
         return [root, dirs, files]
@@ -117,10 +117,10 @@ def EasyTreeCopyFileTree(src, dst):
     rdirs = [dst]
     rfiles = []
     for root, dirs, files in os.walk(src):
-        rdirs.extend(map(lambda d: dst+root[len(src):]+os.path.sep+d, dirs))
-        rfiles.extend(map(lambda f: (root+os.path.sep+f,dst+root[len(src):]+os.path.sep+f), files))
-    map(os.makedirs,rdirs)
-    map(lambda (s,d): shutil.copyfile(s,d),rfiles)
+        rdirs.extend([dst+root[len(src):]+os.path.sep+d for d in dirs])
+        rfiles.extend([(root+os.path.sep+f,dst+root[len(src):]+os.path.sep+f) for f in files])
+    list(map(os.makedirs,rdirs))
+    list(map(lambda s_d: shutil.copyfile(s_d[0],s_d[1]),rfiles))
 
 def EasyTreeCopyFiles():
     dpath = vim.eval('fpath')+os.sep
@@ -159,8 +159,8 @@ def EasyTreeCopyFiles():
                     try:
                         EasyTreeCopyFile(f,dst,overwrite)
                         i += 1
-                    except OSError, e:
-                        print str(repr(e))
+                    except OSError as e:
+                        print(str(repr(e)))
                         return "error"
                 else:
                     vim.command("echom 'can''t copy from same source to same destination'")
@@ -190,7 +190,7 @@ def EasyTreeRemoveFiles():
                 else:
                     os.remove(f)
                 i += 1
-            except OSError, e:
+            except OSError as e:
                 messages.append(str(repr(e)))
         else:
             messages.append(f+" doesn't exists")
