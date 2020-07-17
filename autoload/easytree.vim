@@ -1243,7 +1243,7 @@ function! easytree#OpenTree(win, dir)
     nnoremap <silent> <buffer> m :call <SID>CreateFile(line('.'))<CR>
     nnoremap <silent> <buffer> r :call <SID>Refresh(line('.'))<CR>
     nnoremap <silent> <buffer> R :call <SID>RefreshAll()<CR>
-    nnoremap <silent> <buffer> i :try \| call <SID>GetInfo(line('.')) \| finally \| exe 'py easytree.easytree_dirsize_calculator=None' \| endtry<CR>
+    nnoremap <silent> <buffer> i :try \| call <SID>GetInfo(line('.')) \| finally \| exe 'py3 easytree.easytree_dirsize_calculator=None' \| endtry<CR>
     nnoremap <silent> <buffer> I :call <SID>ToggleHidden()<CR>
     nnoremap <silent> <buffer> H :call <SID>ChangeDirTo(expand('~'))<CR>
     nnoremap <silent> <buffer> J :call <SID>ChangeDirTo()<CR>
