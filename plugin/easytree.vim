@@ -1,8 +1,8 @@
 " easytree.vim - simple tree file manager for vim
 " Maintainer: Dmitry "troydm" Geurkov <d.geurkov@gmail.com>
-" Version: 0.2.1
+" Version: 0.2.2
 " Description: easytree.vim is a simple tree file manager
-" Last Change: 10 January, 2013
+" Last Change: 5 November, 2020
 " License: Vim License (see :help license)
 " Website: https://github.com/troydm/easytree.vim
 "
@@ -12,27 +12,13 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-" check python support and vim patchset version {{{
-if !has("python")
-    if exists("g:easytree_suppress_load_warning") && g:easytree_suppress_load_warning
-        finish
-    endif
-    echo "easytree needs vim compiled with +python option"
-    finish
-endif
-
-if !exists('*pyeval')
-    if exists("g:easytree_suppress_load_warning") && g:easytree_suppress_load_warning
-        finish
-    endif
-    echo "easytree needs vim 7.3 with atleast 569 patchset included"
-    finish
-endif
-" }}}
-
 " options {{{
 if !exists('g:easytree_loaded')
     let g:easytree_loaded = 0
+endif
+
+if !exists('g:easytree_use_python2')
+    let g:easytree_use_python2 = 0
 endif
 
 if !exists("g:easytree_cascade_open_single_dir")

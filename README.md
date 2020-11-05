@@ -14,6 +14,7 @@ screenshot
 
 usage
 -----
+You need to have vim compiled with either +python3 or +python support.
 
     :EasyTree
 

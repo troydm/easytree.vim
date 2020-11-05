@@ -1,8 +1,8 @@
 " easytree.vim - simple tree file manager for vim
 " Maintainer: Dmitry "troydm" Geurkov <d.geurkov@gmail.com>
-" Version: 0.2.1
+" Version: 0.2.2
 " Description: easytree.vim is a simple tree file manager
-" Last Change: 3 June, 2014
+" Last Change: 5 November, 2020
 " License: Vim License (see :help license)
 " Website: https://github.com/troydm/easytree.vim
 "
@@ -24,18 +24,47 @@ else
 endif
 " }}}
 
+" check python support and vim patchset version {{{
+if !((!g:easytree_use_python2 && has("python3")) || has("python"))
+    if exists("g:easytree_suppress_load_warning") && g:easytree_suppress_load_warning
+        finish
+    endif
+    echo "easytree needs vim compiled with +python or +python3 option"
+    finish
+endif
+
+if !exists('*pyxeval')
+    if exists("g:easytree_suppress_load_warning") && g:easytree_suppress_load_warning
+        finish
+    endif
+    echo "easytree needs vim 7.3 with atleast 569 patchset included"
+    finish
+endif
+" }}}
+
 " load python module {{{
-python << EOF
+if has('python3') && !g:easytree_use_python2
+    python3 << EOF
 import vim, os, random, sys
-easytree_path = vim.eval("expand('<sfile>:h')")
+easytree_path = vim.eval("expand('<sfile>:h')") + '/py3'
 if not easytree_path in sys.path:
     sys.path.insert(0, easytree_path)
 del easytree_path
 import easytree
 EOF
+else
+    python << EOF
+import vim, os, random, sys
+easytree_path = vim.eval("expand('<sfile>:h')") + '/py2'
+if not easytree_path in sys.path:
+    sys.path.insert(0, easytree_path)
+del easytree_path
+import easytree
+EOF
+endif
 " }}}
 
-let s:easytree_on_windows = pyeval('easytree.easytree_on_windows')
+let s:easytree_on_windows = pyxeval('easytree.easytree_on_windows')
 if s:easytree_on_windows
     let s:easytree_path_sep = '\'
 else
@@ -138,10 +167,10 @@ endfunction
 
 function! s:GetFullPathDir(linen)
     let fpath = s:GetFullPath(a:linen)
-    if pyeval("os.path.isdir(vim.eval('fpath'))")
+    if pyxeval("os.path.isdir(vim.eval('fpath'))")
         return fpath
     else
-        let fpath = pyeval("os.path.dirname(vim.eval('fpath'))")
+        let fpath = pyxeval("os.path.dirname(vim.eval('fpath'))")
         return fpath
     endif
 endfunction
@@ -150,7 +179,7 @@ function! s:GetFullPath(linen)
     if a:linen == 2
         let dirp = getline(1)
         if dirp != '/'
-            let dirp = pyeval("os.path.abspath(vim.eval('dirp')+'".s:easytree_path_sep."..')")
+            let dirp = pyxeval("os.path.abspath(vim.eval('dirp')+'".s:easytree_path_sep."..')")
         endif
         return dirp
     elseif a:linen == 1
@@ -183,12 +212,12 @@ endfunction
 
 function! s:DirName(path)
     let path = a:path
-    return pyeval("os.path.dirname(vim.eval('path'))")
+    return pyxeval("os.path.dirname(vim.eval('path'))")
 endfunction
 
 function! s:FileName(path)
     let path = a:path
-    return pyeval("os.path.basename(vim.eval('path'))")
+    return pyxeval("os.path.basename(vim.eval('path'))")
 endfunction
 
 function! s:GetPasteBuffer()
@@ -300,7 +329,7 @@ function! s:ChangeDirTo(...)
         let path = s:AskInputComplete('go to ',getline(1),'dir')
     endif
     if !empty(path)
-        if pyeval("os.path.isdir(os.path.expanduser(vim.eval('path')))")
+        if pyxeval("os.path.isdir(os.path.expanduser(vim.eval('path')))")
             call s:InitializeNewTree(path)
         else
             redraw
@@ -369,7 +398,7 @@ function! s:MoveFiles(linen)
         let fpath = s:GetFullPathDir(a:linen)
         let files = s:GetPasteBuffer()
 
-        let error = pyeval('easytree.EasyTreeCopyFiles()')
+        let error = pyxeval('easytree.EasyTreeCopyFiles()')
         if type(error) == 1 && error == 'error'
             return
         endif
@@ -382,7 +411,7 @@ function! s:MoveFiles(linen)
             let files = s:GetPasteBuffer()
         endif
 
-        call pyeval('easytree.EasyTreeRemoveFiles()')
+        call pyxeval('easytree.EasyTreeRemoveFiles()')
         call s:RefreshAll()
         if len(files) == 0 && len(error) == 0
             echom 'No files were moved'
@@ -427,7 +456,7 @@ function! s:PasteFiles(linen)
             echo f
         endfor
         if s:AskConfirmation('are you sure you want to paste '.filesm.'?')
-            python easytree.EasyTreeCopyFiles()
+            pythonx easytree.EasyTreeCopyFiles()
             call s:Refresh(a:linen)
         endif
     endif
@@ -439,7 +468,7 @@ function! s:RemoveFile(linen)
         let fpath = s:GetFullPath(a:linen)
         let files = [fpath]
         if s:DeleteBuf(fpath) && s:AskConfirmation('are you sure you want to delete this file?')
-            let messages = pyeval('easytree.EasyTreeRemoveFiles()')
+            let messages = pyxeval('easytree.EasyTreeRemoveFiles()')
             call s:Refresh(s:GetParentLvlLinen(a:linen))
         endif
     endif
@@ -465,7 +494,7 @@ function! s:RemoveFiles() range
             echo f
         endfor
         if s:AskConfirmation('are you really sure you want to delete this files?')
-            let messages = pyeval('easytree.EasyTreeRemoveFiles()')
+            let messages = pyxeval('easytree.EasyTreeRemoveFiles()')
             call s:RefreshAll()
         endif
     endif
@@ -479,7 +508,7 @@ function! s:CreateFile(linen)
     let path = s:AskInput('create '.fpath,'')
     if !empty(path)
         let path = fpath.path
-        python easytree.EasyTreeCreateFile()
+        pythonx easytree.EasyTreeCreateFile()
         call s:Refresh(a:linen)
     endif
 endfunction
@@ -493,7 +522,7 @@ function! s:RenameFile(linen)
         if !s:DeleteBuf(fpath)
             return
         endif
-        python easytree.EasyTreeRenameFile()
+        pythonx easytree.EasyTreeRenameFile()
         call s:Refresh(s:GetParentLvlLinen(a:linen))
     endif
 endfunction
@@ -587,7 +616,7 @@ function! s:Find(linen, find)
         let @/ = ''
         let b:find = find
         echo 'searching for '.find
-        exe "let b:findresult = pyeval(\"easytree.EasyTreeFind(vim.eval('find'),vim.eval('fpath'),".b:showhidden.")\")"
+        exe "let b:findresult = pyxeval(\"easytree.EasyTreeFind(vim.eval('find'),vim.eval('fpath'),".b:showhidden.")\")"
         redraw
         if fpath != getline(1)
             let fpath = fpath[len(getline(1)):]
@@ -842,7 +871,7 @@ function! s:UnexpandDir(fpath,linen)
     else
         let linee -= 1
     endif
-    exe 'python vim.current.buffer['.linee.'] = None'
+    exe 'pythonx vim.current.buffer['.linee.'] = None'
     call s:WidthAutoFit()
 endfunction
 
@@ -864,7 +893,7 @@ function! s:ExpandDir(fpath,linen)
     endif
     let lvl = s:GetLvl(getline(linen))
     let lvls = repeat('  ',lvl)
-    let treelist = pyeval("easytree.EasyTreeListDir(vim.eval('a:fpath'),".b:showhidden.")")
+    let treelist = pyxeval("easytree.EasyTreeListDir(vim.eval('a:fpath'),".b:showhidden.")")
     let cascade = g:easytree_cascade_open_single_dir && len(treelist[1]) == 1 && len(treelist[2]) == 0
     for d in treelist[1]
         if g:easytree_use_plus_and_minus
@@ -892,7 +921,7 @@ function! s:InitializeTree(dir)
     setlocal modifiable
     let b:find = ''
     let b:findresult = []
-    let treelist = pyeval("easytree.EasyTreeListDir(vim.eval('a:dir'),".b:showhidden.")")
+    let treelist = pyxeval("easytree.EasyTreeListDir(vim.eval('a:dir'),".b:showhidden.")")
     silent! normal! gg"_dG
     call setline(1, treelist[0])
     call append(1, '  .. (up a dir)')
@@ -1026,17 +1055,17 @@ endfunction
 
 function! s:GetInfo(linen)
     let fpath = s:GetFullPath(a:linen)
-    let info = pyeval('easytree.EasyTreeGetInfo()')
+    let info = pyxeval('easytree.EasyTreeGetInfo()')
     echo 'name: '.info[0].'  owner: '.info[1].(info[2] == '' ? '' : ':'.info[2]).'  size: '.info[3].'  mode: '.info[4].'  last modified: '.info[5]
-    if pyeval('easytree.easytree_dirsize_calculator != None')
+    if pyxeval('easytree.easytree_dirsize_calculator != None')
         while 1
             sleep 1
-            let info[3] = pyeval("easytree.EasyTreeGetSize(easytree.easytree_dirsize_calculator_curr_size)+(('.'*random.randint(1,3)).ljust(3))")
+            let info[3] = pyxeval("easytree.EasyTreeGetSize(easytree.easytree_dirsize_calculator_curr_size)+(('.'*random.randint(1,3)).ljust(3))")
             redraw
             echo 'name: '.info[0].'  owner: '.info[1].(info[2] == '' ? '' : ':'.info[2]).'  size: '.info[3].'  mode: '.info[4].'  last modified: '.info[5]
-            if !pyeval('easytree.easytree_dirsize_calculator.isAlive()')
-                let info[3] = pyeval("easytree.EasyTreeGetSize(easytree.easytree_dirsize_calculator_curr_size)")
-                python easytree.easytree_dirsize_calculator = None
+            if !pyxeval('easytree.easytree_dirsize_calculator.isAlive()')
+                let info[3] = pyxeval("easytree.EasyTreeGetSize(easytree.easytree_dirsize_calculator_curr_size)")
+                pythonx easytree.easytree_dirsize_calculator = None
                 break
             endif
         endwhile
@@ -1186,8 +1215,8 @@ function! easytree#OpenTree(win, dir)
     if empty(dir)
         let dir = getcwd()
     endif
-    let dir = pyeval("os.path.expanduser(vim.eval('dir'))")
-    if !pyeval("os.path.isdir(vim.eval('dir'))")
+    let dir = pyxeval("os.path.expanduser(vim.eval('dir'))")
+    if !pyxeval("os.path.isdir(vim.eval('dir'))")
         echo 'invalid path '.dir
         return
     endif
@@ -1243,7 +1272,7 @@ function! easytree#OpenTree(win, dir)
     nnoremap <silent> <buffer> m :call <SID>CreateFile(line('.'))<CR>
     nnoremap <silent> <buffer> r :call <SID>Refresh(line('.'))<CR>
     nnoremap <silent> <buffer> R :call <SID>RefreshAll()<CR>
-    nnoremap <silent> <buffer> i :try \| call <SID>GetInfo(line('.')) \| finally \| exe 'py easytree.easytree_dirsize_calculator=None' \| endtry<CR>
+    nnoremap <silent> <buffer> i :try \| call <SID>GetInfo(line('.')) \| finally \| exe 'pythonx easytree.easytree_dirsize_calculator=None' \| endtry<CR>
     nnoremap <silent> <buffer> I :call <SID>ToggleHidden()<CR>
     nnoremap <silent> <buffer> H :call <SID>ChangeDirTo(expand('~'))<CR>
     nnoremap <silent> <buffer> J :call <SID>ChangeDirTo()<CR>

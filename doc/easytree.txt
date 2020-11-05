@@ -34,6 +34,10 @@ Requirements:
 ============================================================================================
  2. CONFIGURATION                                        *easytree.vim-configuration*
 
+                                                         *g:easytree_use_python2*
+g:easytree_use_python2     (Default: 0)
+    Force |EasyTree| to use Python 2 even if Python 3 is available
+
                                                          *g:easytree_win*
 g:easytree_win     (Default: 'left')
     |EasyTree| window. Can be 'left', 'right', 'top', 'bottom', 'top double',
