@@ -104,7 +104,7 @@ g:easytree_auto_save_settings     (Default: 0)
                                                          *g:easytree_settings_file*
 g:easytree_settings_file          (Default: '<dir>/.easytree')
     This is the name of tree settings file that is saved relative to your tree directory
-    File name expands using *expand()* function so it supports all it's modifiers.
+    File name expands using |expand()| function so it supports all it's modifiers.
     Additionaly *<dir>* is expanded to a currently opened |EasyTree| directory.
     For example to have centralized storage of all settings files you can set
     this setting to '~/.easytree/<dir>/.easytree'
