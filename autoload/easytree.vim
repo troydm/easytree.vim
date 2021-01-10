@@ -350,11 +350,7 @@ function! s:GoUpTree()
 endfunction
 
 function! s:ToggleHidden()
-    if b:showhidden
-        let b:showhidden = 0
-    else
-        let b:showhidden = 1
-    endif
+    let b:showhidden = !b:showhidden
     call s:RefreshAll()
     if b:showhidden
         echo 'showing hidden files'
@@ -951,10 +947,18 @@ function! s:InitializeNewTree(dir)
     normal! gg"_dG
     call setline(1,dir)
     setlocal nomodifiable
-    let b:showhidden = g:easytree_show_hidden_files
-    let b:ignore_files = g:easytree_ignore_files
-    let b:ignore_dirs = g:easytree_ignore_dirs
-    let b:ignore_find_result = g:easytree_ignore_find_result
+    if !exists('b:showhidden')
+        let b:showhidden = g:easytree_show_hidden_files
+    endif
+    if !exists('b:ignore_files')
+        let b:ignore_files = g:easytree_ignore_files
+    endif
+    if !exists('b:ignore_dirs')
+        let b:ignore_dirs = g:easytree_ignore_dirs
+    endif
+    if !exists('b:ignore_find_result')
+        let b:ignore_find_result = g:easytree_ignore_find_result
+    endif
     if !(g:easytree_auto_load_settings && s:LoadSetting(dir))
         let b:expanded = {}
     endif
