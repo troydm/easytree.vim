@@ -217,4 +217,36 @@ g:easytree_width_auto_fit   (Default: 0)
 :EasyTreeBottomDouble [directory path]
     Opens two easy tree windows side by side at the bottom
 
+                                                                  *EasyTreeBuffer*
+:EasyTreeBuffer
+    Opens current buffer directory with |EasyTree| command
+
+                                                                  *EasyTreeBufferHere*
+:EasyTreeBufferHere
+    Opens current buffer directory with |EasyTreeHere| command
+
+                                                                  *EasyTreeBufferLeft*
+:EasyTreeBufferLeft
+    Opens current buffer directory with |EasyTreeLeft| command
+
+                                                                  *EasyTreeBufferRight*
+:EasyTreeBufferRight
+    Opens current buffer directory with |EasyTreeRight| command
+
+                                                                  *EasyTreeBufferTop*
+:EasyTreeBufferTop
+    Opens current buffer directory with |EasyTreeTop| command
+
+                                                                  *EasyTreeBufferBottom*
+:EasyTreeBufferBottom
+    Opens current buffer directory with |EasyTreeBottom| command
+
+                                                                  *EasyTreeBufferTopDouble*
+:EasyTreeBufferTopDouble
+    Opens current buffer directory with |EasyTreeTopDouble| command
+
+                                                                  *EasyTreeBufferBottomDouble*
+:EasyTreeBufferBottomDouble
+    Opens current buffer directory with |EasyTreeBottomDouble| command
+
  vim:tw=78:ts=8:ft=help:norl:

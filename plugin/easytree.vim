@@ -100,6 +100,14 @@ command! -nargs=? -complete=dir EasyTreeTop call easytree#OpenTree('top',<q-args
 command! -nargs=? -complete=dir EasyTreeBottom call easytree#OpenTree('bottom',<q-args>)
 command! -nargs=? -complete=dir EasyTreeTopDouble call easytree#OpenTree('top double',<q-args>)
 command! -nargs=? -complete=dir EasyTreeBottomDouble call easytree#OpenTree('bottom double',<q-args>)
+command! -nargs=0 EasyTreeBuffer call easytree#OpenTree(g:easytree_win,fnamemodify(bufname(),':h:p'))
+command! -nargs=0 EasyTreeBufferHere call easytree#OpenTree('edit here',fnamemodify(bufname(),':h:p'))
+command! -nargs=0 EasyTreeBufferLeft call easytree#OpenTree('left',fnamemodify(bufname(),':h:p'))
+command! -nargs=0 EasyTreeBufferRight call easytree#OpenTree('right',fnamemodify(bufname(),':h:p'))
+command! -nargs=0 EasyTreeBufferTop call easytree#OpenTree('top',fnamemodify(bufname(),':h:p'))
+command! -nargs=0 EasyTreeBufferBottom call easytree#OpenTree('bottom',fnamemodify(bufname(),':h:p'))
+command! -nargs=0 EasyTreeBufferTopDouble call easytree#OpenTree('top double',fnamemodify(bufname(),':h:p'))
+command! -nargs=0 EasyTreeBufferBottomDouble call easytree#OpenTree('bottom double',fnamemodify(bufname(),':h:p'))
 " }}}
 
 " netrw hijacking related functions {{{
