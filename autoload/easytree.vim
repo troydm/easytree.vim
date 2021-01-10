@@ -962,6 +962,7 @@ function! s:InitializeNewTree(dir)
     if !(g:easytree_auto_load_settings && s:LoadSetting(dir))
         let b:expanded = {}
     endif
+    let b:dir = dir
     call s:RefreshAll()
 endfunction
 
@@ -1202,6 +1203,35 @@ function! easytree#ToggleTree(win, dir)
             endfor
             silent! exe wn.'wincmd w'
         endif
+    endif
+endfunction
+
+function! easytree#OpenTreeReveal(file)
+    let file = pyxeval("os.path.realpath('".a:file."')")
+    let adir = fnamemodify(file,':p:h')
+    let wnrs = filter(range(1,winnr('$')),"getbufvar(winbufnr(v:val),'&filetype') == 'easytree'")
+    let curwnr = winnr()
+    if len(wnrs) > 0
+        for wnr in wnrs
+            exe string(wnr).'wincmd w'
+            let line = 3
+            while line <= line('$')
+                let fpath = fnamemodify(s:GetFullPath(line),':p')
+                let fpath = pyxeval("os.path.realpath('".fpath."')")
+                if fpath == file
+                    exe 'normal! '.string(line).'G0w'
+                    return
+                end
+                if stridx(adir,fpath) == 0 && !s:IsExpanded(getline(line))
+                    call s:Expand(line)
+                endif
+                let line = line + 1
+            endwhile
+        endfor
+        exe string(curwnr).'wincmd w'
+        echo 'No EasyTree window found with this file'
+    else
+        echo 'No EasyTree windows are open'
     endif
 endfunction
 
