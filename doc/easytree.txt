@@ -253,4 +253,8 @@ g:easytree_width_auto_fit   (Default: 0)
 :EasyTreeBufferReveal
     Reveal current buffer in any |EasyTree| window currently open
 
+                                                                  *EasyTreeFocus*
+:EasyTreeFocus
+    Focuses on the first |EasyTree| window currently open
+
  vim:tw=78:ts=8:ft=help:norl:

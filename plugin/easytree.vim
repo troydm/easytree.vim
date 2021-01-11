@@ -109,6 +109,7 @@ command! -nargs=0 EasyTreeBufferBottom call easytree#OpenTree('bottom',fnamemodi
 command! -nargs=0 EasyTreeBufferTopDouble call easytree#OpenTree('top double',fnamemodify(bufname(),':p:h'))
 command! -nargs=0 EasyTreeBufferBottomDouble call easytree#OpenTree('bottom double',fnamemodify(bufname(),':p:h'))
 command! -nargs=0 EasyTreeBufferReveal call easytree#OpenTreeReveal(fnamemodify(bufname(),':p'))
+command! -nargs=0 EasyTreeFocus call easytree#OpenTreeFocus()
 " }}}
 
 " netrw hijacking related functions {{{

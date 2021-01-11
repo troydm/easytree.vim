@@ -1206,6 +1206,15 @@ function! easytree#ToggleTree(win, dir)
     endif
 endfunction
 
+function! easytree#OpenTreeFocus()
+    let wnrs = filter(range(1,winnr('$')),"getbufvar(winbufnr(v:val),'&filetype') == 'easytree'")
+    if len(wnrs) > 0
+        exe string(wnrs[0]).'wincmd w'
+    else
+        echo 'No EasyTree windows are open'
+    endif
+endfunction
+
 function! easytree#OpenTreeReveal(file)
     let file = pyxeval("os.path.realpath('".a:file."')")
     let adir = fnamemodify(file,':p:h')
