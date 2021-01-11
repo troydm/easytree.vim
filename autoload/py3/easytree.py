@@ -8,7 +8,7 @@
 
 # Python3 version
 
-import vim,random,os,time,stat,sys,shutil,fnmatch,threading
+import vim,random,os,time,stat,sys,subprocess,shutil,fnmatch,threading
 
 easytree_on_windows = os.name == 'nt'
 
@@ -17,6 +17,76 @@ if not easytree_on_windows:
 
 easytree_dirsize_calculator = None
 easytree_dirsize_calculator_cur_size = 0
+
+GIT_STATUS_MAP = {
+    ' A': ['Unstaged','Added'],
+    ' M': ['Unstaged','Modified'],
+    ' D': ['Unstaged','Deleted'],
+    ' R': ['Unstaged','Renamed'],
+    ' C': ['Unstaged','Copied'],
+    'A ': ['Staged','Added'],
+    'AM': ['Staged','Added','Separator','Unstaged','Modified'],
+    'AD': ['Staged','Added','Separator','Unstaged','Deleted'],
+    'M ': ['Staged','Modified'],
+    'MM': ['Staged','Modified','Separator','Unstaged','Modified'],
+    'MD': ['Staged','Modified','Separator','Unstaged','Deleted'],
+    'D ': ['Staged','Deleted'],
+    'DR': ['Staged','Deleted','Separator','Unstaged','Renamed'],
+    'DC': ['Staged','Deleted','Separator','Unstaged','Copied'],
+    'R ': ['Staged','Renamed'],
+    'RM': ['Staged','Renamed','Separator','Unstaged','Modified'],
+    'RD': ['Staged','Renamed','Separator','Unstaged','Deleted'],
+    'C ': ['Staged','Copied'],
+    'CM': ['Staged','Copied','Separator','Unstaged','Modified'],
+    'CD': ['Staged','Copied','Separator','Unstaged','Deleted'],
+    '??': ['Untracked'],
+    '!!': ['Ignored'],
+    'DD': ['Deleted','Separator','Deleted'],
+    'AU': ['Added','Separator','Unmerged'],
+    'UD': ['Unmerged','Separator','Deleted'],
+    'UA': ['Unmerged','Separator','Added'],
+    'DU': ['Deleted','Separator',''],
+    'AA': ['Added','Separator','Added'],
+    'UU': ['Modified','Separator','Modified']
+}
+
+def EasyTreeGitStatus(dir):
+    global GIT_STATUS_MAP
+    p = subprocess.Popen('git status --porcelain --branch --untracked --ignored', shell=True, cwd=dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    status = ['',{}]
+    rootpath = None
+    while True:
+        line = p.stdout.readline().decode('utf-8', 'ignore')
+        if not line:
+            break
+        line = line.rstrip()
+        if line.startswith('##'):
+            status[0] = line[3:line.index('...')]
+            continue
+        if rootpath == None:
+            rootpath = dir
+            while True:
+                if os.path.isdir(rootpath + os.sep + '.git'):
+                    break
+                else:
+                    parentroot = os.path.abspath(rootpath + os.sep + '..') 
+                    if rootpath == parentroot:
+                        break
+                    rootpath = parentroot
+        file = None
+        if '->' in line:
+            file = rootpath + os.sep + line[line.index('->') + 2:].strip()
+        else:
+            file = rootpath + os.sep + line[3:].strip()
+        if line[:2] in GIT_STATUS_MAP:
+            status[1][file] = GIT_STATUS_MAP[line[:2]]
+        else:
+            status[1][file] = ['Unknown']
+    try:
+        p.terminate()
+    except:
+        pass
+    return status
 
 def EasyTreeFnmatchList(f,patterns):
     for p in patterns:

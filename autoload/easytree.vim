@@ -116,8 +116,13 @@ function! s:IsExpanded(line)
     return !empty(matchlist(a:line,'^\s*[▾\-] \(.*\)$'))
 endfunction
 
+let s:easytree_git_indicators_regexp = ''
+for indicator in values(g:easytree_git_indicators)
+    let s:easytree_git_indicators_regexp = s:easytree_git_indicators_regexp.indicator
+endfor
+
 function! s:GetFName(line)
-    return matchlist(a:line,'^[▸▾+\- ]\+\(.*\)$')[1]
+    return matchlist(a:line,'^[▸▾+\- ]\+\([^'.s:easytree_git_indicators_regexp.']\+\)\(\s['.s:easytree_git_indicators_regexp.']\+\)\?$')[1]
 endfunction
 
 function! s:GetParentLvlLinen(linen)
@@ -256,6 +261,26 @@ function! s:DeleteBuf(filename)
         return 1
     endif
     return 0
+endfunction
+
+function! s:GetGitStatus()
+    if g:easytree_git_enable
+        let b:git = pyxeval("easytree.EasyTreeGitStatus(vim.eval('b:dir'))")
+    else
+        let b:git = ['',{}]
+    endif
+endfunction
+
+function! s:AddGitStatusIndicators(f,fullpath)
+    if has_key(b:git[1],a:fullpath)
+        let indicators = ''
+        for indicator in b:git[1][a:fullpath]
+            let indicators = indicators.g:easytree_git_indicators[indicator]
+        endfor
+        return a:f.' '.indicators
+    else
+        return a:f
+    endif
 endfunction
 " }}}
 
@@ -524,6 +549,7 @@ function! s:RenameFile(linen)
 endfunction
 
 function! s:RefreshAll()
+    call s:GetGitStatus()
     if line('.') > 2
         let prevfpath = s:GetFullPath(line('.'))
     endif
@@ -584,6 +610,7 @@ function! s:RefreshAll()
 endfunction
 
 function! s:Refresh(linen)
+    call s:GetGitStatus()
     let linen = s:GetDirLine(a:linen)
     if linen == 1
         call s:RefreshAll()
@@ -904,7 +931,8 @@ function! s:ExpandDir(fpath,linen)
         endif
     endfor
     for f in treelist[2]
-        call append(linen,lvls.'  '.f)
+        let fullpath = a:fpath.s:easytree_path_sep.f
+        call append(linen,lvls.'  '.s:AddGitStatusIndicators(f,fullpath))
         let linen += 1
     endfor
     call s:WidthAutoFit()
@@ -920,7 +948,11 @@ function! s:InitializeTree(dir)
     let treelist = pyxeval("easytree.EasyTreeListDir(vim.eval('a:dir'),".b:showhidden.")")
     silent! normal! gg"_dG
     call setline(1, treelist[0])
-    call append(1, '  .. (up a dir)')
+    if b:git[0] == ''
+        call append(1, '  .. (up a dir)')
+    else
+        call append(1, '  .. (up a dir) ('.g:easytree_git_indicators['Branch'].' '.b:git[0].')')
+    endif
     for d in treelist[1]
         if g:easytree_use_plus_and_minus
             call append(line('$'),'+ '.d)
@@ -929,7 +961,8 @@ function! s:InitializeTree(dir)
         endif
     endfor
     for f in treelist[2]
-        call append(line('$'),'  '.f)
+        let fullpath = b:dir.s:easytree_path_sep.f
+        call append(line('$'),'  '.s:AddGitStatusIndicators(f,fullpath))
     endfor
     setlocal nomodifiable
     call s:WidthAutoFit()
@@ -943,6 +976,7 @@ function! s:InitializeNewTree(dir)
             let dir = dir.s:easytree_path_sep
         endif
     endif
+    let b:dir = dir
     setlocal modifiable
     normal! gg"_dG
     call setline(1,dir)
@@ -962,7 +996,6 @@ function! s:InitializeNewTree(dir)
     if !(g:easytree_auto_load_settings && s:LoadSetting(dir))
         let b:expanded = {}
     endif
-    let b:dir = dir
     call s:RefreshAll()
 endfunction
 

@@ -18,13 +18,35 @@ set cpo&vim
 
 syntax match EasyTreeRoot /\%1l.*/
 syntax match EasyTreeRootUp /\%2l.*/
+syntax match EasyTreeFile /^\%>2l.*$/
 syntax match EasyTreeDir /^\%>2l\s*[▸▾+-] .*$/
-syntax match EasyTreeFile /^\%>2l\s*[^▸▾+-]*$/
+
+for indicator in keys(g:easytree_git_indicators)
+    if indicator != 'Branch'
+        exe 'syntax match EasyTreeGit'.indicator.' /'.g:easytree_git_indicators[indicator].'/ containedin=EasyTreeFile'
+    endif
+endfor
+exe 'syntax match EasyTreeGitBranch /'.g:easytree_git_indicators['Branch']."[^)]\\+/ containedin=EasyTreeRootUp"
 
 highlight default link EasyTreeRoot   Operator
 highlight default link EasyTreeRootUp Title
 highlight default link EasyTreeDir    Identifier
 highlight default link EasyTreeFile   Normal
+highlight default link EasyTreeFile   Identifier
+
+highlight default link EasyTreeGitBranch    String
+highlight default link EasyTreeGitStaged    Identifier
+highlight default link EasyTreeGitUnstaged  Identifier
+highlight default link EasyTreeGitSeparator Title
+highlight default link EasyTreeGitAdded     Number
+highlight default link EasyTreeGitModified  Character
+highlight default link EasyTreeGitRenamed   Operator
+highlight default link EasyTreeGitCopied    Operator
+highlight default link EasyTreeGitDeleted   String
+highlight default link EasyTreeGitUnmerged  Boolean
+highlight default link EasyTreeGitIgnored   Comment
+highlight default link EasyTreeGitUntracked Comment
+highlight default link EasyTreeGitUnknown   Comment
 
 let b:current_syntax = "easytree"
 

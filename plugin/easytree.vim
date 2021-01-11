@@ -88,6 +88,29 @@ endif
 if !exists("g:easytree_toggle_win")
     let g:easytree_toggle_win = 'left'
 endif
+
+if !exists("g:easytree_git_enable")
+    let g:easytree_git_enable = 1
+endif
+
+if !exists("g:easytree_git_indicators")
+    let g:easytree_git_indicators = {
+                    \ 'Branch'    : '',
+                    \ 'Unstaged'  : '✗',
+                    \ 'Staged'    : '✔︎',
+                    \ 'Separator' : '|',
+                    \ 'Modified'  : '✹',
+                    \ 'Added'     : '✚',
+                    \ 'Deleted'   : '✖',
+                    \ 'Renamed'   : '➜',
+                    \ 'Copied'    : '➜',
+                    \ 'Unmerged'  : '═',
+                    \ 'Ignored'   : '☒',
+                    \ 'Untracked' : '✭',
+                    \ 'Unknown'   : '?'
+                    \ }
+endif
+
 " }}}
 
 " commands {{{
