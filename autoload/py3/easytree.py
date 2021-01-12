@@ -61,7 +61,10 @@ def EasyTreeGitStatus(dir):
             break
         line = line.rstrip()
         if line.startswith('##'):
-            status[0] = line[3:line.index('...')]
+            if '...' in line:
+                status[0] = line[3:line.index('...')].strip()
+            else:
+                status[0] = line[3:].strip()
             continue
         if rootpath == None:
             rootpath = dir
