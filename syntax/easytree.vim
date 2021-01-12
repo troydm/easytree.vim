@@ -45,7 +45,7 @@ highlight default link EasyTreeGitCopied    Operator
 highlight default link EasyTreeGitDeleted   String
 highlight default link EasyTreeGitUnmerged  Boolean
 highlight default link EasyTreeGitIgnored   Comment
-highlight default link EasyTreeGitUntracked Comment
+highlight default link EasyTreeGitUntracked Type
 highlight default link EasyTreeGitUnknown   Comment
 
 let b:current_syntax = "easytree"
