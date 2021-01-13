@@ -192,6 +192,25 @@ g:easytree_git_indicators
         To hide some dirs in current tree according to comma seperated pattern list use |zd|
         To hide find results in current tree according to comma seperated pattern list use |zs|
         To close easytree window just press |q|
+    Git status:
+        Git status when enabled via |g:easytree_git_enable| option shows
+        information related to git status of each file via status indicators
+        next to that file. Each file can have multiple status indicators.
+        Each status indicator shows information related to status of that file:
+           - branch name shown next to .. (up a dir) line
+          ✗ - unstaged file
+          ✔︎ - staged file
+          | - difference between index/working tree, in case of merging it's us/them
+          ✹ - file modified
+          ✚ - file added
+          ✖ - file deleted
+          ➜ - file renamed
+          ➜ - file copied
+          ═ - unmerged file
+          ☒ - ignored file
+          ✭ - untracked file
+          ? - unknown status
+        Indicators can be customized via |g:easytree_git_indicators| Dictionary
 
                                                                   *EasyTreeHere*
 :EasyTreeHere [directory path]
