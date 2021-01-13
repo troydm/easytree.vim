@@ -19,6 +19,7 @@ set cpo&vim
 syntax match EasyTreeRoot /\%1l.*/
 syntax match EasyTreeRootUp /\%2l.*/
 syntax match EasyTreeFile /^\%>2l.*$/
+syntax match EasyTreeDirArrow /[▸▾+-]/ containedin=EasyTreeDir
 syntax match EasyTreeDir /^\%>2l\s*[▸▾+-] .*$/
 
 for indicator in keys(g:easytree_git_indicators)
@@ -28,11 +29,11 @@ for indicator in keys(g:easytree_git_indicators)
 endfor
 exe 'syntax match EasyTreeGitBranch /'.g:easytree_git_indicators['Branch']."[^)]\\+/ containedin=EasyTreeRootUp"
 
-highlight default link EasyTreeRoot   Operator
-highlight default link EasyTreeRootUp Title
-highlight default link EasyTreeDir    Identifier
-highlight default link EasyTreeFile   Normal
-highlight default link EasyTreeFile   Identifier
+highlight default link EasyTreeRoot     Operator
+highlight default link EasyTreeRootUp   Title
+highlight default link EasyTreeDir      Identifier
+highlight default link EasyTreeDirArrow Title
+highlight default link EasyTreeFile     Normal
 
 highlight default link EasyTreeGitBranch    String
 highlight default link EasyTreeGitStaged    Identifier
