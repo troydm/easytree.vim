@@ -52,6 +52,7 @@ GIT_STATUS_MAP = {
 
 def EasyTreeGitStatus(dir):
     global GIT_STATUS_MAP
+    dir = os.path.abspath(os.path.expanduser(dir))
     p = subprocess.Popen('git status --porcelain --branch --untracked --ignored', shell=True, cwd=dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     status = ['',{}]
     rootpath = None
