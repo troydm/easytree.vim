@@ -197,7 +197,7 @@ g:easytree_git_indicators
         information related to git status of each file via status indicators
         next to that file. Each file can have multiple status indicators.
         Each status indicator shows information related to status of that file:
-           - branch name shown next to .. (up a dir) line
+           - branch name shown next to .. (up a dir) line
           ✗ - unstaged file
           ✔︎ - staged file
           | - difference between index/working tree, in case of merging it's us/them

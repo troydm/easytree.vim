@@ -95,7 +95,7 @@ endif
 
 if !exists("g:easytree_git_indicators")
     let g:easytree_git_indicators = {
-                    \ 'Branch'    : '',
+                    \ 'Branch'    : '',
                     \ 'Unstaged'  : '✗',
                     \ 'Staged'    : '✔︎',
                     \ 'Separator' : '|',
