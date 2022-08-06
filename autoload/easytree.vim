@@ -122,7 +122,11 @@ for indicator in values(g:easytree_git_indicators)
 endfor
 
 function! s:GetFName(line)
-    return matchlist(a:line,'^[▸▾+\- ]\+\([^'.s:easytree_git_indicators_regexp.']\+\)\(\s['.s:easytree_git_indicators_regexp.']\+\)\?$')[1]
+    if g:easytree_git_symbols_behind == 1
+        return matchlist(a:line,'^[▸▾+\- ]\+\([^'.s:easytree_git_indicators_regexp.']\+\)\(\s['.s:easytree_git_indicators_regexp.']\+\)\?$')[1]
+    else
+        return matchlist(a:line,'^[▸▾+\- ]\+\(['.s:easytree_git_indicators_regexp.']\+\)\?\s\(.\+\)$')[2]
+    endif
 endfunction
 
 function! s:GetParentLvlLinen(linen)
@@ -277,7 +281,11 @@ function! s:AddGitStatusIndicators(f,fullpath)
         for indicator in b:git[1][a:fullpath]
             let indicators = indicators.g:easytree_git_indicators[indicator]
         endfor
-        return a:f.' '.indicators
+        if g:easytree_git_symbols_behind == 1
+            return a:f.' '.indicators
+        else
+            return indicators.' '.a:f
+        endif
     else
         return a:f
     endif
