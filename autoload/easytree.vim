@@ -1239,13 +1239,26 @@ function! easytree#ToggleTree(win, dir)
     endif
 endfunction
 
+function! easytree#RefreshAll()
+    let initial_winnr = winnr()
+    if easytree#OpenTreeFocus() == 1
+        call s:RefreshAll()
+    endif
+    if initial_winnr != winnr()
+        exe string(initial_winnr).'wincmd w'
+    endif
+endfunction
+
 function! easytree#OpenTreeFocus()
+    let result = 0
     let wnrs = filter(range(1,winnr('$')),"getbufvar(winbufnr(v:val),'&filetype') == 'easytree'")
     if len(wnrs) > 0
         exe string(wnrs[0]).'wincmd w'
+        let result = 1
     else
         echo 'No EasyTree windows are open'
     endif
+    return result
 endfunction
 
 function! easytree#OpenTreeReveal(file)
