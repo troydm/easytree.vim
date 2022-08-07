@@ -93,6 +93,10 @@ if !exists("g:easytree_git_enable")
     let g:easytree_git_enable = 1
 endif
 
+if !exists("g:easytree_git_symbols_behind")
+    let g:easytree_git_symbols_behind = 1
+endif
+
 if !exists("g:easytree_git_indicators")
     let g:easytree_git_indicators = {
                     \ 'Branch'    : '',
