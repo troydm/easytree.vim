@@ -288,4 +288,8 @@ g:easytree_git_symbols_behind (Default: 1)
 :EasyTreeFocus
     Focuses on the first |EasyTree| window currently open
 
+                                                             *EasyTreeLocateCurrentFile*
+:EasyTreeLocateCurrentFile
+    Locate current file in EasyTree |g:easytree_toggle_win| window
+
  vim:tw=78:ts=8:ft=help:norl:

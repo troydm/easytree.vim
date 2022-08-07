@@ -636,6 +636,24 @@ function! s:Refresh(linen)
     endif
 endfunction
 
+function! s:LocateFile(filename)
+    let fpath = s:GetFullPathDir(1)
+    if a:filename =~ fpath
+        let filename = substitute(a:filename, fpath."/", "", "")
+        exe "let b:findresult = pyxeval(\"easytree.EasyTreeFind(vim.eval('filename'),vim.eval('fpath'),".b:showhidden.")\")"
+        if !empty(b:findresult)
+            echo ''
+            let b:findindex = -1
+            let @/ = ''
+            call s:FindNext()
+        else
+            echo 'no files found'
+        endif
+    else
+        echo 'file not under EasyTree path'
+    endif
+endfunction
+    
 function! s:Find(linen, find)
     let linen = a:linen
     if linen == 2
@@ -1247,6 +1265,15 @@ function! easytree#ToggleTree(win, dir)
     endif
 endfunction
 
+function! easytree#LocateFile(filename)
+    call easytree#OpenTreeFocus(1)
+    call <SID>LocateFile(a:filename)
+endfunction
+
+function! easytree#OpenTreeFocus()
+    call easytree#OpenTreeFocus(0)
+endfunction
+
 function! easytree#RefreshAll()
     let initial_winnr = winnr()
     if easytree#OpenTreeFocus() == 1
@@ -1257,14 +1284,18 @@ function! easytree#RefreshAll()
     endif
 endfunction
 
-function! easytree#OpenTreeFocus()
+function! easytree#OpenTreeFocus(open)
     let result = 0
     let wnrs = filter(range(1,winnr('$')),"getbufvar(winbufnr(v:val),'&filetype') == 'easytree'")
     if len(wnrs) > 0
         exe string(wnrs[0]).'wincmd w'
         let result = 1
     else
-        echo 'No EasyTree windows are open'
+        if (a:open == 1)
+            call easytree#OpenTree(g:easytree_toggle_win,'')
+        else
+            echo 'No EasyTree windows are open'
+        endif
     endif
     return result
 endfunction

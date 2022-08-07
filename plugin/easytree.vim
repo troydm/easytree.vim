@@ -137,6 +137,7 @@ command! -nargs=0 EasyTreeBufferTopDouble call easytree#OpenTree('top double',fn
 command! -nargs=0 EasyTreeBufferBottomDouble call easytree#OpenTree('bottom double',fnamemodify(bufname(),':p:h'))
 command! -nargs=0 EasyTreeBufferReveal call easytree#OpenTreeReveal(fnamemodify(bufname(),':p'))
 command! -nargs=0 EasyTreeFocus call easytree#OpenTreeFocus()
+command! -nargs=0 EasyTreeLocateCurrentFile call easytree#LocateFile(expand('%:p'))
 command! -nargs=0 EasyTreeRefreshAll call easytree#RefreshAll()
 " }}}
 
