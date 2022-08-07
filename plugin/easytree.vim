@@ -93,6 +93,10 @@ if !exists("g:easytree_git_enable")
     let g:easytree_git_enable = 1
 endif
 
+if !exists("g:easytree_git_symbols_behind")
+    let g:easytree_git_symbols_behind = 1
+endif
+
 if !exists("g:easytree_git_indicators")
     let g:easytree_git_indicators = {
                     \ 'Branch'    : '',
@@ -133,7 +137,8 @@ command! -nargs=0 EasyTreeBufferTopDouble call easytree#OpenTree('top double',fn
 command! -nargs=0 EasyTreeBufferBottomDouble call easytree#OpenTree('bottom double',fnamemodify(bufname(),':p:h'))
 command! -nargs=0 EasyTreeBufferReveal call easytree#OpenTreeReveal(fnamemodify(bufname(),':p'))
 command! -nargs=0 EasyTreeFocus call easytree#OpenTreeFocus()
-command! EasyTreeLocateCurrentFile call easytree#LocateFile(expand('%:p'))
+command! -nargs=0 EasyTreeLocateCurrentFile call easytree#LocateFile(expand('%:p'))
+command! -nargs=0 EasyTreeRefreshAll call easytree#RefreshAll()
 " }}}
 
 " netrw hijacking related functions {{{

@@ -126,6 +126,10 @@ g:easytree_git_enable   (Default: 1)
 g:easytree_git_indicators
     Customize git status indicator icons
 
+                                                         *g:easytree_git_symbols_behind*
+g:easytree_git_symbols_behind (Default: 1)
+    Customize git symbols position
+
 ============================================================================================
  2. USAGE                                                         *easytree.vim-usage*
 

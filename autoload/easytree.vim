@@ -122,7 +122,11 @@ for indicator in values(g:easytree_git_indicators)
 endfor
 
 function! s:GetFName(line)
-    return matchlist(a:line,'^[▸▾+\- ]\+\([^'.s:easytree_git_indicators_regexp.']\+\)\(\s['.s:easytree_git_indicators_regexp.']\+\)\?$')[1]
+    if g:easytree_git_symbols_behind == 1
+        return matchlist(a:line,'^[▸▾+\- ]\+\([^'.s:easytree_git_indicators_regexp.']\+\)\(\s['.s:easytree_git_indicators_regexp.']\+\)\?$')[1]
+    else
+        return matchlist(a:line,'^[▸▾+\- ]\+\(['.s:easytree_git_indicators_regexp.']\+\)\?\s\(.\+\)$')[2]
+    endif
 endfunction
 
 function! s:GetParentLvlLinen(linen)
@@ -277,7 +281,11 @@ function! s:AddGitStatusIndicators(f,fullpath)
         for indicator in b:git[1][a:fullpath]
             let indicators = indicators.g:easytree_git_indicators[indicator]
         endfor
-        return a:f.' '.indicators
+        if g:easytree_git_symbols_behind == 1
+            return a:f.' '.indicators
+        else
+            return indicators.' '.a:f
+        endif
     else
         return a:f
     endif
@@ -1266,10 +1274,22 @@ function! easytree#OpenTreeFocus()
     call easytree#OpenTreeFocus(0)
 endfunction
 
+function! easytree#RefreshAll()
+    let initial_winnr = winnr()
+    if easytree#OpenTreeFocus() == 1
+        call s:RefreshAll()
+    endif
+    if initial_winnr != winnr()
+        exe string(initial_winnr).'wincmd w'
+    endif
+endfunction
+
 function! easytree#OpenTreeFocus(open)
+    let result = 0
     let wnrs = filter(range(1,winnr('$')),"getbufvar(winbufnr(v:val),'&filetype') == 'easytree'")
     if len(wnrs) > 0
         exe string(wnrs[0]).'wincmd w'
+        let result = 1
     else
         if (a:open == 1)
             call easytree#OpenTree(g:easytree_toggle_win,'')
@@ -1277,6 +1297,7 @@ function! easytree#OpenTreeFocus(open)
             echo 'No EasyTree windows are open'
         endif
     endif
+    return result
 endfunction
 
 function! easytree#OpenTreeReveal(file)
