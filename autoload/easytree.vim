@@ -1270,18 +1270,20 @@ function! easytree#LocateFile(filename)
     call <SID>LocateFile(a:filename)
 endfunction
 
-function! easytree#OpenTreeFocus()
-    call easytree#OpenTreeFocus(0)
-endfunction
-
 function! easytree#RefreshAll()
     let initial_winnr = winnr()
-    if easytree#OpenTreeFocus() == 1
+    let wnrs = filter(range(1,winnr('$')),"getbufvar(winbufnr(v:val),'&filetype') == 'easytree'")
+    for wnr in wnrs
+        exe string(wnr).'wincmd w'
         call s:RefreshAll()
-    endif
+    endfor
     if initial_winnr != winnr()
         exe string(initial_winnr).'wincmd w'
     endif
+endfunction
+
+function! easytree#OpenTreeFocus()
+    call easytree#OpenTreeFocus(0)
 endfunction
 
 function! easytree#OpenTreeFocus(open)
