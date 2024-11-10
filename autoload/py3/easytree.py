@@ -368,6 +368,7 @@ def EasyTreeGetInfo():
                 t.join()
             easytree_dirsize_calculator = threading.Thread(target=EasyTreeGetDirSize, args=(path,))
             easytree_dirsize_calculator.setDaemon(True)
+            easytree_dirsize_calculator.isAlive = easytree_dirsize_calculator.is_alive
             easytree_dirsize_calculator.start()
         else:
             size = st.st_size
