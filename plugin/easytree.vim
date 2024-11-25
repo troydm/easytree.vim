@@ -101,7 +101,7 @@ if !exists("g:easytree_git_indicators")
     let g:easytree_git_indicators = {
                     \ 'Branch'    : '',
                     \ 'Unstaged'  : '✗',
-                    \ 'Staged'    : '✔︎',
+                    \ 'Staged'    : '✔',
                     \ 'Separator' : '|',
                     \ 'Modified'  : '✹',
                     \ 'Added'     : '✚',

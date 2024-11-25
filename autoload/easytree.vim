@@ -116,10 +116,7 @@ function! s:IsExpanded(line)
     return !empty(matchlist(a:line,'^\s*[▾\-] \(.*\)$'))
 endfunction
 
-let s:easytree_git_indicators_regexp = ''
-for indicator in values(g:easytree_git_indicators)
-    let s:easytree_git_indicators_regexp = s:easytree_git_indicators_regexp.indicator
-endfor
+let s:easytree_git_indicators_regexp = join(values(g:easytree_git_indicators), '')
 
 function! s:GetFName(line)
     if g:easytree_git_symbols_behind == 1
